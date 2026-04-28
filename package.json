@@ -2,7 +2,7 @@
   "name": "hirevault",
   "private": true,
   "version": "0.1.0",
-  "description": "HireVault — AI-powered LinkedIn career intelligence platform",
+  "description": "AI-powered job scraper and CV generator for the German/EU market",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",

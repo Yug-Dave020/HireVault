@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "HireVault",
-  description: "AI-powered LinkedIn career intelligence platform",
+  description: "AI-powered job scraper and CV generator for the German/EU market",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

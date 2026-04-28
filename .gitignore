@@ -1,16 +1,12 @@
-# Dependencies
 node_modules/
 .pnp
 .pnp.js
 
-# Turborepo
 .turbo/
 
-# Next.js
 apps/web/.next/
 apps/web/out/
 
-# Python
 apps/worker/__pycache__/
 apps/worker/*.pyc
 apps/worker/.venv/
@@ -20,7 +16,6 @@ dist/
 build/
 .eggs/
 
-# Environment variables — NEVER commit these
 .env
 .env.local
 .env.development.local
@@ -29,32 +24,24 @@ build/
 apps/web/.env.local
 apps/worker/.env
 
-# Supabase local dev
 supabase/.branches/
 supabase/.temp/
 
-# Build outputs
-dist/
-build/
 *.tsbuildinfo
 
-# IDE
 .vscode/settings.json
 .idea/
 *.swp
 *.swo
 
-# OS
 .DS_Store
 Thumbs.db
 
-# Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Testing
 coverage/
 .nyc_output/

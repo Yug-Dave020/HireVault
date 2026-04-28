@@ -1,4 +1,4 @@
-create table job_listings (
+create table if not exists job_listings (
   id uuid default gen_random_uuid() primary key,
   title text,
   company text,
@@ -14,7 +14,7 @@ create table job_listings (
   url text unique
 );
 
-create table user_profiles (
+create table if not exists user_profiles (
   id uuid references auth.users primary key,
   full_name text,
   target_roles text[],
@@ -29,7 +29,7 @@ create table user_profiles (
   updated_at timestamptz default now()
 );
 
-create table generated_cvs (
+create table if not exists generated_cvs (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users,
   job_listing_id uuid references job_listings,
@@ -42,5 +42,5 @@ create table generated_cvs (
   created_at timestamptz default now()
 );
 
-CREATE INDEX idx_job_listings_board ON job_listings (board, scraped_at DESC);
-CREATE INDEX idx_generated_cvs_user ON generated_cvs (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_job_listings_board ON job_listings (board, scraped_at DESC);
+CREATE INDEX IF NOT EXISTS idx_generated_cvs_user ON generated_cvs (user_id, created_at DESC);
