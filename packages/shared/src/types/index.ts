@@ -1,20 +1,4 @@
-export type JobBoard = "indeed" | "stepstone" | "xing" | "glassdoor";
-
-export interface JobListing {
-  id: string;
-  title: string | null;
-  company: string | null;
-  location: string | null;
-  board: JobBoard | null;
-  jd_raw: string | null;
-  jd_analyzed: Record<string, unknown> | null;
-  required_skills: string[] | null;
-  experience_level: string | null;
-  salary_range: string | null;
-  posted_at: string | null;
-  scraped_at: string;
-  url: string | null;
-}
+import { CVProfile, CVDesignPrefs } from "../schemas/api";
 
 export interface UserProfile {
   id: string;
@@ -29,12 +13,15 @@ export interface UserProfile {
   salary_expectation: string | null;
   voice_profile: VoiceProfile | null;
   updated_at: string;
+  // CV v2 additions:
+  cv_profile?: CVProfile | null;
+  design_prefs?: CVDesignPrefs | null;
+  parse_mode?: "uploaded" | "scratch" | null;
 }
 
 export interface GeneratedCV {
   id: string;
   user_id: string;
-  job_listing_id: string;
   cv_content: Record<string, unknown> | null;
   pdf_url: string | null;
   docx_url: string | null;
@@ -52,3 +39,5 @@ export interface VoiceProfile {
   emoji_usage: "none" | "minimal" | "moderate" | "heavy";
   analyzed_at: string;
 }
+
+export * from "../schemas/api";
