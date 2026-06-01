@@ -14,8 +14,8 @@ import { NavLinks } from "./nav-links";
 
 export const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/jobs",      label: "Jobs" },
   { href: "/cv",        label: "My CVs" },
+  { href: "/profile",   label: "My Profile" },
 ] as const;
 
 export async function TopNav() {
