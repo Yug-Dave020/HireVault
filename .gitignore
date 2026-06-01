@@ -4,6 +4,8 @@ node_modules/
 
 .turbo/
 
+.agents/
+
 apps/web/.next/
 apps/web/out/
 
