@@ -11,9 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "HireVault — AI Job Intelligence",
+  title: "HireVault — AI Career Acceleration Platform",
   description:
-    "AI-powered job scraper and CV generator for the German/EU market",
+    "Advanced AI CV optimization, parsing, and interview preparation for modern candidates",
 };
 
 export default function RootLayout({

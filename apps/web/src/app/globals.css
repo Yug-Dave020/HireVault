@@ -7,11 +7,11 @@
 
 /* HIREVAULT DESIGN TOKENS */
 :root {
-  --hv-navy:    #0f1c2e;
-  --hv-teal:    #1d9e75;
+  --hv-navy: #0f1c2e;
+  --hv-teal: #1d9e75;
   --hv-teal-dk: #0f6e56;
-  --hv-blue:    #378add;
-  --hv-muted:   #8aa3bc;
+  --hv-blue: #378add;
+  --hv-muted: #8aa3bc;
 
   /* Shadcn base tokens */
   --background: oklch(1 0 0);
@@ -41,13 +41,21 @@
     @apply border-border;
     box-sizing: border-box;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     letter-spacing: -0.02em;
   }
+
   :focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.18);
@@ -68,8 +76,8 @@
   padding: 1.5rem;
   background: #07111d;
   background-image:
-    radial-gradient(ellipse 80% 60% at 20% 40%, rgba(29,158,117,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 60%, rgba(55,138,221,0.10) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 60% at 20% 40%, rgba(29, 158, 117, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 60%, rgba(55, 138, 221, 0.10) 0%, transparent 60%);
 }
 
 /* The card itself — max width, rounded, shadow, overflow clip for canvas */
@@ -82,9 +90,9 @@
   border-radius: 20px;
   overflow: hidden;
   box-shadow:
-    0 0 0 1px rgba(255,255,255,0.06),
-    0 32px 80px rgba(0,0,0,0.6),
-    0 8px 24px rgba(0,0,0,0.4);
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 32px 80px rgba(0, 0, 0, 0.6),
+    0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 @media (min-width: 768px) {
@@ -139,9 +147,12 @@
   color: #e2eaf4;
   letter-spacing: -0.01em;
 }
+
 /* Hide tagline on the short mobile banner */
 @media (max-width: 767px) {
-  .hv-auth-tagline { display: none; }
+  .hv-auth-tagline {
+    display: none;
+  }
 }
 
 /* Stats pill row */
@@ -149,19 +160,22 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 0.875rem 1rem;
 }
+
 @media (max-width: 767px) {
-  .hv-stats-row { display: none; }
+  .hv-stats-row {
+    display: none;
+  }
 }
 
 .hv-stats-divider {
   width: 1px;
   height: 1.75rem;
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   flex-shrink: 0;
 }
 
@@ -221,6 +235,7 @@
   border-radius: 8px !important;
   transition: border-color 150ms ease, box-shadow 150ms ease !important;
 }
+
 .hv-input:focus {
   border-color: var(--hv-teal) !important;
   box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.12) !important;
@@ -244,9 +259,11 @@
   transition: background 150ms ease;
   text-decoration: none;
 }
+
 .hv-btn-primary:hover:not(:disabled) {
   background: var(--hv-teal-dk);
 }
+
 .hv-btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -269,10 +286,12 @@
   transition: border-color 150ms ease, background 150ms ease;
   margin-top: 0.5rem;
 }
+
 .hv-btn-outline:hover:not(:disabled) {
   border-color: var(--hv-teal);
   background: #f5fffa;
 }
+
 .hv-btn-outline:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -288,6 +307,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+
 .hv-divider::before {
   content: "";
   position: absolute;
@@ -297,6 +317,7 @@
   height: 1px;
   background: #f1f5f9;
 }
+
 .hv-divider span {
   position: relative;
   background: #ffffff;
@@ -317,6 +338,7 @@
   text-decoration: none;
   transition: color 150ms ease;
 }
+
 .hv-link:hover {
   color: var(--hv-teal-dk);
   text-decoration: underline;
@@ -369,7 +391,10 @@
   text-decoration: none;
   transition: opacity 150ms ease;
 }
-.hv-nav-logo:hover { opacity: 0.75; }
+
+.hv-nav-logo:hover {
+  opacity: 0.75;
+}
 
 .hv-logo-icon-sm {
   display: flex;
@@ -394,8 +419,14 @@
   border-radius: 8px;
   transition: color 150ms ease;
 }
-.hv-nav-link:hover { color: var(--hv-teal); }
-.hv-nav-link--active { color: var(--hv-teal); }
+
+.hv-nav-link:hover {
+  color: var(--hv-teal);
+}
+
+.hv-nav-link--active {
+  color: var(--hv-teal);
+}
 
 .hv-nav-underline {
   position: absolute;
@@ -433,6 +464,7 @@
   gap: 1rem;
   padding: 1.5rem;
 }
+
 @media (min-width: 640px) {
   .hv-welcome-inner {
     flex-direction: row;
@@ -446,8 +478,8 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 1rem 1.25rem;
   flex-shrink: 0;
@@ -459,7 +491,10 @@
   padding-left: 0.75rem;
   transition: transform 150ms ease;
 }
-.hv-stat-item:hover { transform: scale(1.02); }
+
+.hv-stat-item:hover {
+  transform: scale(1.02);
+}
 
 .hv-card {
   background: #ffffff;
@@ -478,6 +513,7 @@
   background: var(--hv-teal);
   color: #ffffff;
 }
+
 .hv-skill-chip--muted {
   background: #f1f5f9;
   color: #64748b;
@@ -485,8 +521,13 @@
 
 /* SHIMMER ANIMATION */
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @layer utilities {
@@ -495,4 +536,34 @@
     background-size: 200% 100%;
     animation: shimmer 1.6s ease-in-out infinite;
   }
+}
+
+.cv-editor-form input {
+  height: 2.75rem !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  border-radius: 0.75rem !important;
+  border-color: #e2e8f0 !important;
+  background-color: #ffffff !important;
+  transition: all 150ms ease !important;
+}
+
+.cv-editor-form input:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+  outline: none !important;
+}
+
+.cv-editor-form textarea {
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.75rem !important;
+  border-color: #e2e8f0 !important;
+  background-color: #ffffff !important;
+  transition: all 150ms ease !important;
+}
+
+.cv-editor-form textarea:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+  outline: none !important;
 }
