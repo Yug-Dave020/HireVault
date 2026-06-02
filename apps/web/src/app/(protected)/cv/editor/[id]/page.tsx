@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   Loader2, Save, Download, Sparkles, Plus, Trash2, ArrowLeft,
-  User, Briefcase, GraduationCap, Code, Languages, Type
+  User, Briefcase, GraduationCap, Code, Languages, Type, Globe,
+  EyeOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +21,9 @@ const THEMES = [
 
 export default function CVEditorPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const mode = searchParams.get("mode") || "scratch";
+  const params = useParams();
+  const variantId = params.id as string;
+  const supabase = createClient();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -52,6 +54,10 @@ export default function CVEditorPage() {
   const [tailorTargetRole, setTailorTargetRole] = useState("");
   const [tailorLoading, setTailorLoading] = useState(false);
   const [tailorSuccessToast, setTailorSuccessToast] = useState(false);
+
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
+  const [username, setUsername] = useState("");
 
   const startEnhancing = (text: string, type: "summary" | "bullet" | "project", expIdx?: number, bulletIdx?: number, projectIdx?: number) => {
     const defaultRole = profile.target_roles?.[0] || "Software Engineer";
@@ -193,16 +199,16 @@ export default function CVEditorPage() {
 
   useEffect(() => {
     async function loadInitialCV() {
-      const staged = sessionStorage.getItem("draft_cv_profile");
+      const staged = sessionStorage.getItem(`draft_cv_profile_${variantId}`);
+      let hasStagedProfile = false;
       if (staged) {
         try {
           setProfile(JSON.parse(staged));
-          setLoading(false);
-          return;
+          hasStagedProfile = true;
         } catch (_) { }
       }
 
-      const supabase = createClient();
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
@@ -210,21 +216,27 @@ export default function CVEditorPage() {
       }
 
       const { data: userProf } = await supabase
-        .from("user_profiles")
-        .select("cv_profile")
-        .eq("id", user.id)
+        .from("user_cv_variants")
+        .select("cv_profile, is_public, username")
+        .eq("id", variantId)
         .maybeSingle();
 
-      if (userProf?.cv_profile) {
-        setProfile(userProf.cv_profile);
+      if (userProf) {
+        if (userProf.cv_profile && !hasStagedProfile) {
+          setProfile(userProf.cv_profile);
+        }
+        setIsPublic(userProf.is_public ?? false);
+        setUsername(userProf.username ?? "");
       }
       setLoading(false);
     }
-    loadInitialCV();
-  }, [router]);
+    if (variantId) {
+      loadInitialCV();
+    }
+  }, [router, supabase, variantId]);
 
   async function persistChanges(newProfile: any) {
-    sessionStorage.setItem("draft_cv_profile", JSON.stringify(newProfile));
+    sessionStorage.setItem(`draft_cv_profile_${variantId}`, JSON.stringify(newProfile));
   }
 
   const updatePersonal = (field: string, val: string) => {
@@ -418,22 +430,47 @@ export default function CVEditorPage() {
     setSaving(true);
     setError(null);
     try {
-      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No active session");
 
-      const { error: dbError } = await supabase
-        .from("user_profiles")
-        .upsert({
-          id: user.id,
-          cv_profile: profile,
-          cv_hash: null,
-          cached_ats_score: null,
-          cached_critiques: null,
-          updated_at: new Date().toISOString()
+      let newScore = null;
+      let newCritiques = null;
+
+      try {
+        const backendRes = await fetch(`/api/cv/suggest`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            section_type: "global_gap_analysis",
+            current_text: profile.personal?.summary || "Analyze baseline career history.",
+            target_role: profile.target_roles?.[0] || "Software Engineer",
+            full_cv_context: profile
+          }),
         });
 
+        if (backendRes.ok) {
+          const diagnostics = await backendRes.json();
+          newScore = diagnostics.score || null;
+          newCritiques = diagnostics.critiques || null;
+        }
+      } catch (_) {
+        console.warn("Could not fetch server critiques on save.");
+      }
+
+      const { error: dbError } = await supabase
+        .from("user_cv_variants")
+        .update({
+          cv_profile: profile,
+          is_public: isPublic,
+          username: username.trim() || null,
+          cached_ats_score: newScore,
+          cached_critiques: newCritiques,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", variantId);
+
       if (dbError) throw dbError;
+      router.refresh();
       alert("Canvas successfully saved to cloud database!");
     } catch (err: any) {
       setError(err.message || "Failed saving CV profile.");
@@ -496,15 +533,19 @@ export default function CVEditorPage() {
             <span className="text-sm font-bold tracking-tight text-zinc-800">
               CV Workspace Studio
             </span>
-            {mode === "uploaded" && (
-              <span className="bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                ✨ AI Imported
-              </span>
-            )}
           </div>
         </div>
 
         <div className="flex items-center gap-2.5">
+          <Button
+            variant="outline"
+            onClick={() => setIsShareOpen(true)}
+            className="border-zinc-200 text-sky-600 font-bold h-9 text-xs rounded-xl hover:bg-sky-50/50"
+          >
+            <Globe className="h-3.5 w-3.5 mr-1" />
+            Share Profile
+          </Button>
+
           <Button
             variant="outline"
             onClick={() => setIsTailoringOpen(true)}
@@ -541,7 +582,124 @@ export default function CVEditorPage() {
           <button onClick={() => setTailorSuccessToast(false)} className="text-emerald-500 hover:text-emerald-700 ml-4 font-black">✕</button>
         </div>
       )}
+      {isShareOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-in fade-in zoom-in-95">
 
+
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <Globe className="h-5 w-5 text-indigo-600" />
+                Public Portfolio
+              </h2>
+              <button
+                onClick={() => setIsShareOpen(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3.5 border border-zinc-100 rounded-xl bg-zinc-50/50">
+                <div>
+                  <div className="text-sm font-bold text-zinc-700">Public Visibility</div>
+                  <div className="text-xs text-zinc-500 mt-0.5">Allow recruiters to view your CV via a link.</div>
+                </div>
+
+
+                <label className="relative inline-flex items-center cursor-pointer select-none shrink-0 ml-4">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={isPublic}
+                    onChange={e => setIsPublic(e.target.checked)}
+                  />
+                  <div className="w-9 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+              </div>
+
+
+              {isPublic ? (
+                <div className="space-y-2.5 pt-2 border-t border-dashed border-zinc-200 animate-in slide-in-from-top-2 duration-200">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-zinc-600">Portfolio URL Slug</label>
+                    <div className="flex items-center">
+                      <span className="flex items-center px-3 border border-r-0 border-zinc-200 bg-zinc-100/80 text-zinc-500 text-xs rounded-l-xl h-10 select-none font-medium">
+                        hirevault.com/p/
+                      </span>
+                      <Input
+                        value={username}
+                        onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                        placeholder="username-slug"
+                        className="rounded-l-none border-l-0 border-zinc-200 focus-visible:ring-1 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 h-10 text-xs font-medium"
+                      />
+                    </div>
+                  </div>
+
+
+                  <div className="flex items-center gap-2 pt-1.5">
+                    <input
+                      type="text"
+                      readOnly
+                      value={typeof window !== 'undefined' ? `${window.location.origin}/p/${username || 'your-slug'}` : `hirevault.com/p/${username || 'your-slug'}`}
+                      className="flex-1 px-3 py-2 bg-white border border-zinc-200 rounded-xl text-xs font-mono text-zinc-500 select-all focus:outline-none h-9 truncate"
+                      id="modal-share-url"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={async () => {
+                        const inputEl = document.getElementById('modal-share-url') as HTMLInputElement;
+                        if (inputEl) {
+                          try {
+                            await navigator.clipboard.writeText(inputEl.value);
+                            const copyBtn = document.getElementById('modal-copy-btn');
+                            if (copyBtn) copyBtn.innerText = 'Copied';
+                            setTimeout(() => { if (copyBtn) copyBtn.innerText = 'Copy Link'; }, 2000);
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }
+                      }}
+                      className="h-9 px-3 border-zinc-200 text-zinc-700 hover:bg-zinc-50 rounded-xl text-xs font-bold gap-1.5 shrink-0 min-w-[90px] justify-center"
+                    >
+                      <span id="modal-copy-btn">Copy Link</span>
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 pt-1 bg-white p-2.5 border border-zinc-100 rounded-xl">
+                  <EyeOff className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                  <span>Your online view page is currently closed. Enable visibility to copy your shared path.</span>
+                </div>
+              )}
+            </div>
+
+
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsShareOpen(false)}
+                className="text-xs h-9 font-semibold rounded-xl border-zinc-200 text-zinc-700"
+              >
+                Close
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsShareOpen(false);
+                  handleManualSave();
+                }}
+                className="text-xs h-9 bg-indigo-600 hover:bg-indigo-700 font-bold text-white rounded-xl shadow-sm transition-colors"
+              >
+                Save & Apply
+              </Button>
+            </div>
+
+          </div>
+        </div>
+      )}
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 bg-zinc-50/40 overflow-hidden min-h-0">
         <aside className="lg:col-span-7 bg-white rounded-2xl border border-zinc-200/60 shadow-xs flex flex-col overflow-y-auto px-6 py-6 space-y-6 cv-editor-form">
           {error && (
@@ -1194,7 +1352,7 @@ export default function CVEditorPage() {
               <div className="space-y-1.5">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Current Text</span>
                 <p className="text-xs text-slate-600 bg-white p-3 rounded-xl border border-slate-200/80 italic shadow-xs">
-                  "{activeEnhance.currentText || "No text entered yet. Enter text to optimize!"}"
+                  &quot;{activeEnhance.currentText || "No text entered yet. Enter text to optimize!"}&quot;
                 </p>
               </div>
 
@@ -1243,7 +1401,7 @@ export default function CVEditorPage() {
               {!enhanceLoading && !enhanceResult && (
                 <div className="py-12 text-center text-slate-400 space-y-2">
                   <Sparkles className="h-8 w-8 mx-auto text-indigo-300 opacity-60 animate-bounce" />
-                  <p className="text-xs font-semibold">Click "Scan & Optimize" to analyze this block for ATS score, critiques, and alternatives.</p>
+                  <p className="text-xs font-semibold">Click &quot;Scan &amp; Optimize&quot; to analyze this block for ATS score, critiques, and alternatives.</p>
                 </div>
               )}
 
@@ -1253,7 +1411,7 @@ export default function CVEditorPage() {
                     <div className="md:col-span-4 bg-slate-50/80 p-5 rounded-2xl border border-slate-200/50 flex flex-col items-center justify-center text-center space-y-2 shadow-xs">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ATS Score</span>
                       <div className="relative flex items-center justify-center w-24 h-24 rounded-full border-4 shadow-sm" style={{
-                        borderColor: enhanceResult.score >= 80 ?"#1d9e75" : enhanceResult.score >= 50 ?"#f59e0b" : "#ef4444"
+                        borderColor: enhanceResult.score >= 80 ? "#1d9e75" : enhanceResult.score >= 50 ? "#f59e0b" : "#ef4444"
                       }}>
                         <span className="text-2xl font-black tracking-tight" style={{
                           color: enhanceResult.score >= 80 ? "#0f6e56" : enhanceResult.score >= 50 ? "#b45309" : "#dc2626"
