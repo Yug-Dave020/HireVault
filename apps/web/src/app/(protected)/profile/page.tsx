@@ -13,7 +13,7 @@ import Link from "next/link";
 export default function ProfilePage() {
   const router = useRouter();
   const supabase = createClient();
-  
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -26,6 +26,7 @@ export default function ProfilePage() {
   const [experienceYears, setExperienceYears] = useState("0");
   const [languages, setLanguages] = useState("");
   const [salaryExpectation, setSalaryExpectation] = useState("");
+
 
   useEffect(() => {
     async function loadProfile() {
@@ -51,11 +52,15 @@ export default function ProfilePage() {
         setExperienceYears(String(profile.experience_years ?? 0));
         setLanguages((profile.languages ?? []).join(", "));
         setSalaryExpectation(profile.salary_expectation ?? "");
+
+
       }
       setLoading(false);
     }
     loadProfile();
   }, [router, supabase]);
+
+
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -81,6 +86,9 @@ export default function ProfilePage() {
         experience_years: parseInt(experienceYears) || 0,
         languages: languages.split(",").map(l => l.trim()).filter(Boolean),
         salary_expectation: salaryExpectation.trim(),
+
+
+
         updated_at: new Date().toISOString()
       });
 
@@ -106,7 +114,7 @@ export default function ProfilePage() {
   return (
     <div className="flex-1 flex flex-col bg-white overflow-y-auto">
       <main className="mx-auto max-w-2xl w-full px-6 sm:px-8 py-8 space-y-6">
-        
+
         <div className="space-y-1 border-b border-zinc-100 pb-4 flex items-center justify-between">
           <div className="space-y-1">
             <h1 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
@@ -124,7 +132,7 @@ export default function ProfilePage() {
         </div>
 
         <form onSubmit={handleSave} className="space-y-5">
-          
+
           {error && (
             <div className="p-3.5 bg-rose-50 border border-rose-100 text-rose-700 text-xs font-semibold rounded-xl">
               ⚠ {error}
@@ -228,6 +236,7 @@ export default function ProfilePage() {
             />
             <p className="text-[10px] text-zinc-400">Separate values with commas</p>
           </div>
+
 
           <div className="pt-4 border-t border-zinc-100 flex items-center justify-end">
             <Button
