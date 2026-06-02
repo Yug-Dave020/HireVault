@@ -208,26 +208,52 @@ async def cv_suggest(req: SuggestionRequestModel):
             "algorithmic_keyword_match_baseline": calculated_base_modifier
         }
         
-        response = groq_client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": SUGGESTION_SYSTEM_PROMPT},
-                {"role": "user", "content": f"Analyze and optimize the following payload context:\n\n{json.dumps(user_payload, indent=2)}"}
-            ],
-            model=model,
-            temperature=0.2,
-            response_format={"type": "json_object"}
-        )
+        try:
+            response = groq_client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": SUGGESTION_SYSTEM_PROMPT},
+                    {"role": "user", "content": f"Analyze and optimize the following payload context:\n\n{json.dumps(user_payload, indent=2)}"}
+                ],
+                model=model,
+                temperature=0.2,
+                response_format={"type": "json_object"}
+            )
+        except Exception as e:
+            if "rate_limit_exceeded" in str(e) or "429" in str(e):
+                logger.warning(f"Rate limit exceeded for model {model}. Falling back to llama-3.1-8b-instant...")
+                model = "llama-3.1-8b-instant"
+                response = groq_client.chat.completions.create(
+                    messages=[
+                        {"role": "system", "content": SUGGESTION_SYSTEM_PROMPT},
+                        {"role": "user", "content": f"Analyze and optimize the following payload context:\n\n{json.dumps(user_payload, indent=2)}"}
+                    ],
+                    model=model,
+                    temperature=0.2,
+                    response_format={"type": "json_object"}
+                )
+            else:
+                raise e
         
         response_text = response.choices[0].message.content
         logger.info("Successfully received structural ATS diagnostics from Groq.")
         
         parsed_json = json.loads(response_text)
         
+        def normalize_list(lst):
+            out = []
+            for item in lst:
+                if isinstance(item, dict):
+                    val = item.get("optimized_text") or item.get("suggestion") or item.get("description") or item.get("skill") or str(item)
+                    out.append(str(val))
+                else:
+                    out.append(str(item))
+            return out
+        
         return AISuggestionResponseModel(
             score=int(parsed_json.get("score", 0)),
-            critiques=list(parsed_json.get("critiques", [])),
-            optimized_suggestions=list(parsed_json.get("optimized_suggestions", [])),
-            recommended_skills=list(parsed_json.get("recommended_skills", [])),
+            critiques=normalize_list(parsed_json.get("critiques", [])),
+            optimized_suggestions=normalize_list(parsed_json.get("optimized_suggestions", [])),
+            recommended_skills=normalize_list(parsed_json.get("recommended_skills", [])),
             cv_hash_checksum=current_hash
         )
         
@@ -264,15 +290,31 @@ async def cv_global_tailor(req: TailorRequestModel):
             "target_role_override": req.target_role or req.full_cv_context.get("personal", {}).get("target_role", "Professional Candidate")
         }
         
-        response = groq_client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": TAILOR_SYSTEM_PROMPT},
-                {"role": "user", "content": f"Tailor this profile structure globally to perfectly match the target requirements:\n\n{json.dumps(user_payload, indent=2)}"}
-            ],
-            model=model,
-            temperature=0.3,
-            response_format={"type": "json_object"}
-        )
+        try:
+            response = groq_client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": TAILOR_SYSTEM_PROMPT},
+                    {"role": "user", "content": f"Tailor this profile structure globally to perfectly match the target requirements:\n\n{json.dumps(user_payload, indent=2)}"}
+                ],
+                model=model,
+                temperature=0.3,
+                response_format={"type": "json_object"}
+            )
+        except Exception as e:
+            if "rate_limit_exceeded" in str(e) or "429" in str(e):
+                logger.warning(f"Rate limit exceeded for model {model}. Falling back to llama-3.1-8b-instant...")
+                model = "llama-3.1-8b-instant"
+                response = groq_client.chat.completions.create(
+                    messages=[
+                        {"role": "system", "content": TAILOR_SYSTEM_PROMPT},
+                        {"role": "user", "content": f"Tailor this profile structure globally to perfectly match the target requirements:\n\n{json.dumps(user_payload, indent=2)}"}
+                    ],
+                    model=model,
+                    temperature=0.3,
+                    response_format={"type": "json_object"}
+                )
+            else:
+                raise e
         
         tailored_profile = json.loads(response.choices[0].message.content)
         logger.info("Global whole-CV profile successfully optimized and restructured.")

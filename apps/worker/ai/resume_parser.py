@@ -127,18 +127,34 @@ async def parse_resume_text(raw_text: str) -> dict:
         
     try:
         logger.info("Calling Groq API for resume text parsing.")
-        # We use a reliable Groq model (llama-3.3-70b-versatile or llama-3.1-8b-instant)
-        model = "llama-3.3-70b-versatile"
+        # Try primary model from env
+        model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
         
-        response = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": f"Parse the following resume text:\n\n{raw_text}"}
-            ],
-            model=model,
-            temperature=0.1,
-            response_format={"type": "json_object"}
-        )
+        try:
+            response = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": f"Parse the following resume text:\n\n{raw_text}"}
+                ],
+                model=model,
+                temperature=0.1,
+                response_format={"type": "json_object"}
+            )
+        except Exception as e:
+            if "rate_limit_exceeded" in str(e) or "429" in str(e):
+                logger.warning(f"Rate limit exceeded for model {model}. Falling back to llama-3.1-8b-instant...")
+                model = "llama-3.1-8b-instant"
+                response = client.chat.completions.create(
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": f"Parse the following resume text:\n\n{raw_text}"}
+                    ],
+                    model=model,
+                    temperature=0.1,
+                    response_format={"type": "json_object"}
+                )
+            else:
+                raise e
         
         content = response.choices[0].message.content
         logger.info("Successfully received structured response from Groq.")
