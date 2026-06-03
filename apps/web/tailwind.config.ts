@@ -49,7 +49,7 @@ const config: Config = {
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         brand: {
-          50:  "hsl(var(--brand-50))",
+          50: "hsl(var(--brand-50))",
           100: "hsl(var(--brand-100))",
           200: "hsl(var(--brand-200))",
           300: "hsl(var(--brand-300))",
