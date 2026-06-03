@@ -236,7 +236,7 @@ export default function CVEditorPage() {
   }, [router, supabase, variantId]);
 
   async function persistChanges(newProfile: any) {
-    sessionStorage.setItem(`draft_cv_profile_${variantId}`, JSON.stringify(newProfile));
+    // Session storage auto-save removed per user request
   }
 
   const updatePersonal = (field: string, val: string) => {
@@ -546,14 +546,6 @@ export default function CVEditorPage() {
             Share Profile
           </Button>
 
-          <Button
-            variant="outline"
-            onClick={() => setIsTailoringOpen(true)}
-            className="border-zinc-200 text-indigo-600 font-bold h-9 text-xs rounded-xl hover:bg-indigo-50/50"
-          >
-            <Sparkles className="h-3.5 w-3.5 mr-1 text-indigo-500 animate-pulse" />
-            Tailor CV to Job
-          </Button>
 
           <Button
             variant="outline"
@@ -793,14 +785,7 @@ export default function CVEditorPage() {
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-bold text-slate-700">Professional Summary</Label>
-                    <button
-                      type="button"
-                      onClick={() => startEnhancing(profile.personal.summary || "", "summary")}
-                      className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-all flex items-center gap-1 bg-indigo-50/60 hover:bg-indigo-100/80 px-2 py-1 rounded-md border border-indigo-100 hover:shadow-xs"
-                    >
-                      <Sparkles className="h-3 w-3 text-indigo-500 animate-pulse" />
-                      AI Enhance
-                    </button>
+
                   </div>
                   <Textarea
                     value={profile.personal.summary || ""}
@@ -915,14 +900,7 @@ export default function CVEditorPage() {
                               rows={2}
                               className="text-xs w-full pr-24"
                             />
-                            <button
-                              type="button"
-                              onClick={() => startEnhancing(bul, "bullet", idx, bIdx)}
-                              className="absolute right-2 bottom-2 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition-all flex items-center gap-0.5 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded border border-indigo-100/50 hover:shadow-xs shadow-2xs"
-                            >
-                              <Sparkles className="h-2.5 w-2.5 text-indigo-500 animate-pulse" />
-                              AI Enhance
-                            </button>
+
                           </div>
                           <button
                             type="button"
@@ -1068,14 +1046,7 @@ export default function CVEditorPage() {
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-slate-600">Project Description</Label>
-                        <button
-                          type="button"
-                          onClick={() => startEnhancing(proj.description || "", "project", undefined, undefined, idx)}
-                          className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-all flex items-center gap-1 bg-indigo-50/60 hover:bg-indigo-100/80 px-2 py-1 rounded-md border border-indigo-100 hover:shadow-xs"
-                        >
-                          <Sparkles className="h-3 w-3 text-indigo-500 animate-pulse" />
-                          AI Enhance
-                        </button>
+
                       </div>
                       <Textarea
                         value={proj.description || ""}
@@ -1091,48 +1062,7 @@ export default function CVEditorPage() {
 
             {activeSection === "skills" && (
               <div className="space-y-6">
-                <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs font-bold text-zinc-800">AI Skill Recommendations</h4>
-                      <p className="text-[10px] text-zinc-500">Extract matching key technologies based on your overall CV profile</p>
-                    </div>
-                    <Button
-                      type="button"
-                      onClick={loadSkillsSuggestions}
-                      disabled={skillsLoading}
-                      className="bg-indigo-50 border border-indigo-100 text-indigo-600 hover:bg-indigo-100 h-8 px-3 rounded-lg text-xs font-bold flex items-center gap-1 transition-all"
-                    >
-                      {skillsLoading ? (
-                        <>
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          Analyzing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-3 w-3" />
-                          Suggest Skills
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  {suggestedSkills.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {suggestedSkills.map(skill => (
-                        <button
-                          key={skill}
-                          type="button"
-                          onClick={() => addSuggestedSkill(skill)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-indigo-50 border border-zinc-200 hover:border-indigo-300 text-[10.5px] font-bold text-zinc-700 rounded-lg transition-all shadow-xs"
-                          title="Click to add to your skills list"
-                        >
-                          <span>+ {skill}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-3">                </div>
 
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-slate-700">Technical Skills (comma separated)</Label>

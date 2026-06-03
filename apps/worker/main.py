@@ -1,6 +1,9 @@
-from fastapi import FastAPI, UploadFile, File, Response, HTTPException
+from fastapi import FastAPI, UploadFile, File, Response, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import asyncio
+import tempfile
+from supabase import create_client, Client
 import os
 import logging
 import json
@@ -55,8 +58,24 @@ class TailorRequestModel(BaseModel):
     job_description: str
     target_role: Optional[str] = None
 
+class InterviewChatRequest(BaseModel):
+    persona_id: str
+    current_stage: str
+    target_position: str
+    cv_profile: dict
+    message_history: List[Dict[str, str]]
+
+class InterviewChatResponse(BaseModel):
+    ai_message: str
+    next_stage: str
+    feedback_metadata: dict
+
 groq_api_key = os.getenv("GROQ_API_KEY")
 groq_client = Groq(api_key=groq_api_key) if groq_api_key else None
+
+supabase_url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+supabase: Optional[Client] = create_client(supabase_url, supabase_key) if supabase_url and supabase_key else None
 
 SUGGESTION_SYSTEM_PROMPT = """You are an elite corporate technical recruiter and expert ATS (Applicant Tracking System) optimization assistant.
 Your goal is to cross-examine a candidate's CV information against their target professional role and target job description to maximize their interview conversion rate.
@@ -323,3 +342,250 @@ async def cv_global_tailor(req: TailorRequestModel):
     except Exception as e:
         logger.error(f"Global tailoring loop pipeline failed: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Tailoring engine compilation error: {str(e)}")
+
+@app.post("/interview/chat", response_model=InterviewChatResponse)
+async def interview_chat(req: InterviewChatRequest):
+    logger.info(f"Handling /interview/chat request for stage: {req.current_stage}")
+    from ai.interview_agent import run_interview_turn
+    try:
+        result = await run_interview_turn(
+            persona_id=req.persona_id,
+            current_stage=req.current_stage,
+            target_position=req.target_position,
+            cv_profile=req.cv_profile,
+            message_history=req.message_history
+        )
+        return InterviewChatResponse(
+            ai_message=result["ai_message"],
+            next_stage=result["next_stage"],
+            feedback_metadata=result.get("feedback_metadata", {})
+        )
+    except Exception as e:
+        logger.error(f"Failed handling interview chat: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, WebSocket] = {}
+        self.session_tasks: Dict[str, asyncio.Task] = {}
+        self.interrupt_events: Dict[str, asyncio.Event] = {}
+        self.session_code: Dict[str, str] = {}
+        self.session_history: Dict[str, List[Dict[str, str]]] = {}
+
+    async def connect(self, websocket: WebSocket, session_id: str):
+        await websocket.accept()
+        self.active_connections[session_id] = websocket
+        self.interrupt_events[session_id] = asyncio.Event()
+        self.session_code[session_id] = ""
+        self.session_history[session_id] = []
+
+    def disconnect(self, session_id: str):
+        if session_id in self.active_connections:
+            del self.active_connections[session_id]
+        if session_id in self.session_tasks:
+            self.session_tasks[session_id].cancel()
+            del self.session_tasks[session_id]
+        if session_id in self.interrupt_events:
+            del self.interrupt_events[session_id]
+        if session_id in self.session_history:
+            del self.session_history[session_id]
+
+manager = ConnectionManager()
+
+@app.websocket("/ws/interview/{session_id}")
+async def websocket_interview(websocket: WebSocket, session_id: str):
+    await manager.connect(websocket, session_id)
+    logger.info(f"WebSocket connected: {session_id}")
+    
+    session_data = None
+    is_empty_history = True
+    if supabase:
+        def fetch_session():
+            return supabase.table("interview_sessions").select("*").eq("id", session_id).execute()
+        res = await asyncio.to_thread(fetch_session)
+        if res.data:
+            session_data = res.data[0]
+            
+        def fetch_trans():
+            return supabase.table("interview_transcripts").select("*").eq("session_id", session_id).order("created_at").execute()
+        trans_res = await asyncio.to_thread(fetch_trans)
+        if trans_res.data:
+            is_empty_history = False
+            manager.session_history[session_id] = [
+                {"role": "user" if m["message_owner"] == "user" else "assistant", "content": m["content"], "stage": m["stage"]}
+                for m in trans_res.data
+            ]
+            
+    if not session_data:
+        await websocket.close(code=1008)
+        return
+        
+    if is_empty_history and session_data.get("current_stage") != "Feedback":
+        logger.info(f"Empty transcript history. Triggering initial AI greeting for {session_id}")
+        manager.session_tasks[session_id] = asyncio.create_task(
+            generate_and_stream_ai_response(session_id, websocket, session_data)
+        )
+
+    try:
+        while True:
+            message = await websocket.receive()
+            
+            if "bytes" in message:
+                audio_data = message["bytes"]
+                logger.info(f"Received audio chunk of {len(audio_data)} bytes for {session_id}")
+                
+                if session_id in manager.session_tasks and not manager.session_tasks[session_id].done():
+                    manager.interrupt_events[session_id].set()
+                
+                try:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp:
+                        tmp.write(audio_data)
+                        tmp.flush()
+                        tmp_path = tmp.name
+                    
+                    def run_whisper():
+                        with open(tmp_path, "rb") as f:
+                            return groq_client.audio.transcriptions.create(
+                                file=(os.path.basename(tmp_path), f.read()),
+                                model="whisper-large-v3",
+                                prompt="Technical interview transcription."
+                            )
+                    transcription = await asyncio.to_thread(run_whisper)
+                    os.unlink(tmp_path)
+                    
+                    user_text = transcription.text.strip()
+                    if user_text:
+                        logger.info(f"User transcribed: {user_text}")
+                        await websocket.send_json({"type": "transcription", "text": user_text})
+                        
+                        if supabase:
+                            def insert_user_msg():
+                                return supabase.table("interview_transcripts").insert({
+                                    "session_id": session_id,
+                                    "message_owner": "user",
+                                    "content": user_text,
+                                    "stage": session_data.get("current_stage", "Intro")
+                                }).execute()
+                            await asyncio.to_thread(insert_user_msg)
+                            
+                        manager.session_history[session_id].append({
+                            "role": "user",
+                            "content": user_text,
+                            "stage": session_data.get("current_stage", "Intro")
+                        })
+                        
+                        manager.interrupt_events[session_id].clear()
+                        manager.session_tasks[session_id] = asyncio.create_task(
+                            generate_and_stream_ai_response(session_id, websocket, session_data)
+                        )
+                except Exception as e:
+                    logger.error(f"Whisper transcription failed: {e}", exc_info=True)
+                    
+            elif "text" in message:
+                data = json.loads(message["text"])
+                msg_type = data.get("type")
+                
+                if msg_type == "code_update":
+                    manager.session_code[session_id] = data.get("code", "")
+                elif msg_type == "interrupt":
+                    logger.info(f"Client requested interrupt for {session_id}")
+                    if session_id in manager.session_tasks and not manager.session_tasks[session_id].done():
+                        manager.interrupt_events[session_id].set()
+                elif msg_type == "text_message":
+                    user_text = data.get("text", "")
+                    if user_text:
+                        if supabase:
+                            def insert_user_text():
+                                return supabase.table("interview_transcripts").insert({
+                                    "session_id": session_id,
+                                    "message_owner": "user",
+                                    "content": user_text,
+                                    "stage": session_data.get("current_stage", "Intro")
+                                }).execute()
+                            await asyncio.to_thread(insert_user_text)
+                        manager.session_history[session_id].append({
+                            "role": "user",
+                            "content": user_text,
+                            "stage": session_data.get("current_stage", "Intro")
+                        })
+                        manager.interrupt_events[session_id].clear()
+                        manager.session_tasks[session_id] = asyncio.create_task(
+                            generate_and_stream_ai_response(session_id, websocket, session_data)
+                        )
+
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected: {session_id}")
+        manager.disconnect(session_id)
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        manager.disconnect(session_id)
+
+async def generate_and_stream_ai_response(session_id: str, websocket: WebSocket, session_data: dict):
+    from ai.interview_agent import run_interview_stream
+    
+    cv_profile = {}
+    if supabase and session_data.get("cv_variant_id"):
+        try:
+            def fetch_cv():
+                return supabase.table("user_cv_variants").select("cv_profile").eq("id", session_data["cv_variant_id"]).execute()
+            cv_res = await asyncio.to_thread(fetch_cv)
+            if cv_res.data:
+                cv_profile = cv_res.data[0].get("cv_profile", {})
+        except Exception as e:
+            logger.error(f"Error fetching CV variant: {e}")
+            await websocket.send_json({"type": "error", "message": f"Database CV fetch error: {str(e)}"})
+            return
+            
+    current_stage = session_data.get("current_stage", "Intro")
+    
+    try:
+        async for chunk in run_interview_stream(
+            persona_id=session_data.get("selected_persona", "mentor"),
+            current_stage=current_stage,
+            target_position=session_data.get("target_position", "Software Engineer"),
+            cv_profile=cv_profile,
+            message_history=manager.session_history.get(session_id, []),
+            current_code=manager.session_code.get(session_id, ""),
+            interrupt_event=manager.interrupt_events.get(session_id)
+        ):
+            await websocket.send_json(chunk)
+            
+            if chunk.get("type") == "final":
+                next_stage = chunk.get("next_stage") or current_stage
+                ai_text = chunk.get("ai_message", "")
+                if ai_text and supabase:
+                    def insert_ai_msg():
+                        return supabase.table("interview_transcripts").insert({
+                            "session_id": session_id,
+                            "message_owner": "ai",
+                            "content": ai_text,
+                            "stage": next_stage,
+                            "feedback_metadata": chunk.get("feedback_metadata", {})
+                        }).execute()
+                    await asyncio.to_thread(insert_ai_msg)
+                    
+                manager.session_history[session_id].append({
+                    "role": "assistant",
+                    "content": ai_text,
+                    "stage": next_stage
+                })
+                
+                if next_stage and next_stage != current_stage:
+                    if supabase:
+                        payload = {"current_stage": next_stage}
+                        if next_stage == "Feedback":
+                            payload["status"] = "completed"
+                        def update_stage():
+                            return supabase.table("interview_sessions").update(payload).eq("id", session_id).execute()
+                        await asyncio.to_thread(update_stage)
+                    session_data["current_stage"] = next_stage
+                    
+    except asyncio.CancelledError:
+        logger.info("AI generation task cancelled.")
+    except Exception as e:
+        logger.error(f"Error streaming AI response: {e}")
+        try:
+            await websocket.send_json({"type": "error", "message": str(e)})
+        except Exception:
+            pass

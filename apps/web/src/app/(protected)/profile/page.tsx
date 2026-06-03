@@ -75,20 +75,40 @@ export default function ProfilePage() {
       return;
     }
 
+    const sanitizeArray = (input: string) => {
+      const typoMap: Record<string, string> = {
+        "pyhton": "Python",
+        "python": "Python",
+        "springboot": "Spring Boot",
+        "spring boot": "Spring Boot",
+        "reactjs": "React.js",
+        "react": "React.js",
+        "react.js": "React.js",
+        "nodejs": "Node.js",
+        "node.js": "Node.js",
+        "nextjs": "Next.js",
+        "next.js": "Next.js"
+      };
+      return input.split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => {
+          const lower = s.toLowerCase();
+          return typoMap[lower] || s;
+        });
+    };
+
     const { error: saveError } = await supabase
       .from("user_profiles")
       .upsert({
         id: user.id,
         full_name: fullName.trim(),
-        target_roles: targetRoles.split(",").map(r => r.trim()).filter(Boolean),
-        target_locations: targetLocations.split(",").map(l => l.trim()).filter(Boolean),
-        skills: skills.split(",").map(s => s.trim()).filter(Boolean),
+        target_roles: sanitizeArray(targetRoles),
+        target_locations: sanitizeArray(targetLocations),
+        skills: sanitizeArray(skills),
         experience_years: parseInt(experienceYears) || 0,
-        languages: languages.split(",").map(l => l.trim()).filter(Boolean),
+        languages: sanitizeArray(languages),
         salary_expectation: salaryExpectation.trim(),
-
-
-
         updated_at: new Date().toISOString()
       });
 
