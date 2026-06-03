@@ -10,7 +10,6 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-# Initialize Groq client
 api_key = os.getenv("GROQ_API_KEY")
 if not api_key:
     logger.warning("GROQ_API_KEY not found in environment variables. Groq resume parsing will fall back to heuristic parse.")
@@ -94,17 +93,14 @@ def heuristic_fallback_parse(text: str) -> dict:
     logger.info("Running heuristic fallback parse on resume text.")
     profile = empty_profile()
     
-    # Try to extract email
     email_match = re.search(r'[\w\.-]+@[\w\.-]+\.\w+', text)
     if email_match:
         profile["personal"]["email"] = email_match.group(0)
         
-    # Try to extract phone number
     phone_match = re.search(r'\+?\d[\d\-\s\(\)]{8,16}\d', text)
     if phone_match:
         profile["personal"]["phone"] = phone_match.group(0)
         
-    # Guess full name (usually first non-empty line of some words)
     lines = [line.strip() for line in text.split("\n") if line.strip()]
     if lines:
         for line in lines[:3]:
@@ -112,7 +108,6 @@ def heuristic_fallback_parse(text: str) -> dict:
                 profile["personal"]["full_name"] = line
                 break
                 
-    # Add raw text to summary as a start
     profile["personal"]["summary"] = f"Heuristically imported CV. Please fill details live."
     
     return profile
@@ -127,7 +122,6 @@ async def parse_resume_text(raw_text: str) -> dict:
         
     try:
         logger.info("Calling Groq API for resume text parsing.")
-        # Try primary model from env
         model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
         
         try:
@@ -160,20 +154,16 @@ async def parse_resume_text(raw_text: str) -> dict:
         logger.info("Successfully received structured response from Groq.")
         parsed_json = json.loads(content)
         
-        # Merge with empty_profile to ensure all schema keys are strictly present
         base_profile = empty_profile()
         
-        # Merge personal
         if "personal" in parsed_json:
             for k, v in parsed_json["personal"].items():
                 base_profile["personal"][k] = v
                 
-        # Merge arrays
         for section in ["experience", "education", "projects", "target_roles"]:
             if section in parsed_json and isinstance(parsed_json[section], list):
                 base_profile[section] = parsed_json[section]
                 
-        # Merge skills
         if "skills" in parsed_json and isinstance(parsed_json["skills"], dict):
             for k in ["technical", "soft"]:
                 if k in parsed_json["skills"] and isinstance(parsed_json["skills"][k], list):
@@ -181,7 +171,6 @@ async def parse_resume_text(raw_text: str) -> dict:
             if "languages" in parsed_json["skills"] and isinstance(parsed_json["skills"]["languages"], list):
                 base_profile["skills"]["languages"] = parsed_json["skills"]["languages"]
                 
-        # Merge design_prefs
         if "design_prefs" in parsed_json and isinstance(parsed_json["design_prefs"], dict):
             for k in ["theme", "accent_color", "font_heading", "font_body"]:
                 if k in parsed_json["design_prefs"]:
