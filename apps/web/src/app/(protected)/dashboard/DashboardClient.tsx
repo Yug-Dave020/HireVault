@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import {
   Sparkles, MapPin, Briefcase, Award, ArrowRight, Video,
-  FileText, TrendingUp, BarChart3, AlertCircle, BookOpen, CheckCircle, Plus
+  FileText, TrendingUp, BarChart3, AlertCircle, BookOpen, CheckCircle, Plus, Loader2, DollarSign, Network
 } from "lucide-react";
 import Link from "next/link";
 import { VariantCard } from "./VariantCard";
@@ -32,6 +32,30 @@ export function DashboardClient({
   const supabase = createClient();
   const [showOnlyPublic, setShowOnlyPublic] = useState(false);
   const [isAddingSkill, setIsAddingSkill] = useState(false);
+  const [isStartingInterview, setIsStartingInterview] = useState(false);
+
+  const startInterviewSession = async () => {
+    setIsStartingInterview(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const { data, error } = await supabase.from("interview_sessions").insert({
+        user_id: user.id,
+        target_position: primaryRole || "Software Engineer",
+        selected_persona: "Hiring Manager",
+        status: "active"
+      }).select().single();
+      
+      if (data && !error) {
+        router.push(`/interview/${data.id}`);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsStartingInterview(false);
+    }
+  };
 
   const displayedVariants = showOnlyPublic 
     ? activeVariants.filter((v: any) => v.is_public)
@@ -99,7 +123,7 @@ export function DashboardClient({
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" aria-label="Metrics Dashboard">
           {/* Card 1: Market Alignment */}
           <div 
-            onClick={scrollToVault}
+            onClick={() => router.push('/dashboard/coherence')}
             className="border border-zinc-200/60 rounded-2xl p-5 bg-white hover:border-indigo-300 hover:shadow-md cursor-pointer transition-all duration-200 flex justify-between items-start shadow-sm group"
           >
             <div className="space-y-1">
@@ -160,10 +184,8 @@ export function DashboardClient({
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {suggestedGaps.map((gap: string) => (
                     <Popover key={gap}>
-                      <PopoverTrigger asChild>
-                        <button className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200/60 hover:border-amber-300 rounded-md transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/30">
-                          + {gap}
-                        </button>
+                      <PopoverTrigger className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200/60 hover:border-amber-300 rounded-md transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                        + {gap}
                       </PopoverTrigger>
                       <PopoverContent className="w-64 p-4 z-50">
                         <div className="space-y-3">
@@ -194,7 +216,7 @@ export function DashboardClient({
           </div>
 
           {/* Card 4: Mock Interviews */}
-          <Link href="/interview" className="block border border-zinc-200/60 rounded-2xl p-5 bg-white hover:border-indigo-300 hover:shadow-md cursor-pointer transition-all duration-200 flex justify-between items-start shadow-sm group">
+          <div onClick={startInterviewSession} className="block border border-zinc-200/60 rounded-2xl p-5 bg-white hover:border-indigo-300 hover:shadow-md cursor-pointer transition-all duration-200 flex justify-between items-start shadow-sm group">
             <div className="space-y-1">
               <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block group-hover:text-indigo-500 transition-colors">Mock Interviews</span>
               <div className="flex items-baseline gap-2">
@@ -208,7 +230,7 @@ export function DashboardClient({
             <div className="h-9 w-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100 group-hover:bg-indigo-100 group-hover:border-indigo-200 transition-colors">
               <Video className="h-4.5 w-4.5" />
             </div>
-          </Link>
+          </div>
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -218,7 +240,7 @@ export function DashboardClient({
               <h2>Application Accelerators</h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               <div className="border border-zinc-200 rounded-2xl p-6 bg-white flex flex-col justify-between space-y-6 hover:shadow-sm transition-shadow">
                 <div className="space-y-2">
                   <div className="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center">
@@ -248,11 +270,31 @@ export function DashboardClient({
                     Practise interactive mock behavioral and technical sessions with our advanced conversational AI trainer.
                   </p>
                 </div>
-                <Link
-                  href="/interview"
-                  className="inline-flex items-center justify-center gap-2 py-3 px-4 bg-[#0a121e] hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-sm transition-all w-full"
+                <button
+                  onClick={startInterviewSession}
+                  disabled={isStartingInterview}
+                  className="inline-flex items-center justify-center gap-2 py-3 px-4 bg-[#0a121e] hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-sm transition-all w-full disabled:opacity-50"
                 >
-                  Launch Mock Interview
+                  {isStartingInterview ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Launch Mock Interview"}
+                  {!isStartingInterview && <ArrowRight className="h-3.5 w-3.5" />}
+                </button>
+              </div>
+
+              <div className="border border-zinc-200 rounded-2xl p-6 bg-white flex flex-col justify-between space-y-6 hover:shadow-sm transition-shadow">
+                <div className="space-y-2">
+                  <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <DollarSign className="h-5 w-5 text-[#1a91f0]" />
+                  </div>
+                  <h3 className="text-base font-bold text-zinc-900">Offer Negotiation Simulator</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Practice compensation roleplay against automated hiring managers with hidden budget caps.
+                  </p>
+                </div>
+                <Link
+                  href="/dashboard/negotiate"
+                  className="inline-flex items-center justify-center gap-2 py-3 px-4 bg-[#1a91f0] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all w-full"
+                >
+                  Start Negotiation
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
@@ -287,9 +329,17 @@ export function DashboardClient({
 
           <aside className="space-y-6" aria-label="Profile summary">
             <div className="border border-zinc-200 rounded-2xl p-6 bg-white space-y-4 shadow-sm">
-              <div className="flex items-center gap-2 font-semibold text-zinc-800 text-sm">
-                <BookOpen className="h-4.5 w-4.5 text-teal-600" />
-                <span>Your Core Skills</span>
+              <div className="flex items-center justify-between font-semibold text-zinc-800 text-sm">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4.5 w-4.5 text-teal-600" />
+                  <span>Your Core Skills</span>
+                </div>
+                <Link 
+                  href="/dashboard/skill-graph" 
+                  className="flex items-center gap-1.5 text-[#1a91f0] hover:text-blue-600 font-medium text-[14px] transition-colors"
+                >
+                  View Topology Graph <Network className="h-4 w-4" />
+                </Link>
               </div>
               {skills.length > 0 ? (
                 <div className="flex flex-wrap gap-1.5">
