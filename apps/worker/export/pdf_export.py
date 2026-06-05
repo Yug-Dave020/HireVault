@@ -117,16 +117,20 @@ THEME_CONFIGS = {
         "font_heading": "Georgia, serif",
         "font_body": "'Times New Roman', Times, serif",
         "accent_color": "#2c3e50",
-        "extra_css": ""
+        "extra_css": """
+        .header { text-align: left; border-top: 3px solid var(--accent); padding-top: 15px; margin-bottom: 1.5rem; }
+        .header h1 { color: var(--accent); }
+        .section-title { color: var(--accent); }
+        """
     },
     "modern_minimalist": {
         "font_heading": "'Helvetica Neue', Arial, sans-serif",
         "font_body": "'Helvetica Neue', Arial, sans-serif",
         "accent_color": "#1d9e75",
         "extra_css": """
-        .section-title {
-            font-weight: 700;
-        }
+        .header { text-align: left; }
+        .header h1 { color: var(--accent); }
+        .section-title { font-weight: 700; color: #111; }
         """
     },
     "tech_professional": {
@@ -134,10 +138,10 @@ THEME_CONFIGS = {
         "font_body": "Arial, sans-serif",
         "accent_color": "#3b82f6",
         "extra_css": """
-        .item-date, .contact-info, .skills-label {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 9pt;
-        }
+        .header { text-align: center; border-bottom: 1px solid #111; padding-bottom: 10px; margin-bottom: 1.5rem; }
+        .header h1 { color: #111; }
+        .item-date, .contact-info, .skills-label { font-family: 'Courier New', Courier, monospace; font-size: 9pt; }
+        .section-title { border-bottom: 1px solid #111; color: #111; }
         """
     }
 }

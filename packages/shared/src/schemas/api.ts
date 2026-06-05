@@ -89,3 +89,97 @@ export type CVProfile = z.infer<typeof CVProfileSchema>;
 
 export type ParseResumeResponse = z.infer<typeof ParseResumeResponseSchema>;
 export type ExportPDFRequest = z.infer<typeof ExportPDFRequestSchema>;
+
+export const CVSkillOrphanSchema = z.object({
+  skill: z.string(),
+  suggestion: z.string()
+});
+
+export const CVExperienceUnderclaimedSchema = z.object({
+  term: z.string(),
+  found_in: z.string()
+});
+
+export const CVImpactGapSchema = z.object({
+  bullet: z.string(),
+  rewrite_suggestion: z.string()
+});
+
+export const CVTimelineFlagSchema = z.object({
+  role: z.string(),
+  issue: z.string()
+});
+
+export const CVSeniorityMismatchSchema = z.object({
+  role: z.string(),
+  issue: z.string()
+});
+
+export const CVCoherenceReportSchema = z.object({
+  score: z.number().int().min(0).max(100),
+  skill_orphans: z.array(CVSkillOrphanSchema),
+  experience_underclaimed: z.array(CVExperienceUnderclaimedSchema),
+  impact_gap: z.array(CVImpactGapSchema),
+  timeline_flags: z.array(CVTimelineFlagSchema),
+  seniority_mismatch: z.array(CVSeniorityMismatchSchema),
+  keyword_density_flag: z.boolean()
+});
+
+export type CVCoherenceReport = z.infer<typeof CVCoherenceReportSchema>;
+export type CVSkillOrphan = z.infer<typeof CVSkillOrphanSchema>;
+export type CVExperienceUnderclaimed = z.infer<typeof CVExperienceUnderclaimedSchema>;
+export type CVImpactGap = z.infer<typeof CVImpactGapSchema>;
+export type CVTimelineFlag = z.infer<typeof CVTimelineFlagSchema>;
+export type CVSeniorityMismatch = z.infer<typeof CVSeniorityMismatchSchema>;
+
+export const CVRedTeamAttackSchema = z.object({
+  target_section: z.string(),
+  target_text: z.string(),
+  attack_type: z.enum(['vague', 'unverifiable', 'keyword_stuffed', 'buzzword', 'gap']),
+  severity: z.number().int().min(1).max(3),
+  attack_reasoning: z.string()
+});
+
+export const CVRedTeamPatchSchema = z.object({
+  original: z.string(),
+  patched_version: z.string(),
+  reasoning: z.string()
+});
+
+export const CVRedTeamReportSchema = z.object({
+  attack_surface_score: z.number().int(),
+  attacks: z.array(CVRedTeamAttackSchema),
+  patches: z.array(CVRedTeamPatchSchema)
+});
+
+export type CVRedTeamAttack = z.infer<typeof CVRedTeamAttackSchema>;
+export type CVRedTeamPatch = z.infer<typeof CVRedTeamPatchSchema>;
+export type CVRedTeamReport = z.infer<typeof CVRedTeamReportSchema>;
+
+export const JDSnapshotSchema = z.object({
+  id: z.string().uuid().optional(),
+  user_id: z.string().uuid(),
+  company_name: z.string(),
+  role_title: z.string(),
+  source_url: z.string(),
+  scraped_text: z.string(),
+  drifts: z.array(z.string()),
+  created_at: z.string().optional()
+});
+
+export type JDSnapshot = z.infer<typeof JDSnapshotSchema>;
+
+export const NegotiationTurnRequestSchema = z.object({
+  session_id: z.string().uuid(),
+  user_message: z.string(),
+  current_offer: z.number().int()
+});
+
+export const NegotiationTurnResponseSchema = z.object({
+  ai_response: z.string(),
+  new_offer: z.number().int(),
+  feedback_score: z.number().int().min(1).max(100)
+});
+
+export type NegotiationTurnRequest = z.infer<typeof NegotiationTurnRequestSchema>;
+export type NegotiationTurnResponse = z.infer<typeof NegotiationTurnResponseSchema>;

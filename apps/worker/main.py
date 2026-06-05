@@ -70,6 +70,26 @@ class InterviewChatResponse(BaseModel):
     next_stage: str
     feedback_metadata: dict
 
+class CoherenceRequestModel(BaseModel):
+    cv_id: str
+
+class RedTeamRequestModel(BaseModel):
+    cv_id: str
+    attack_mode: str
+
+class VocalAnalysisRequest(BaseModel):
+    transcript_text: str
+    audio_duration_seconds: float
+    session_id: str
+    turn_index: int
+
+class NegotiationTurnRequest(BaseModel):
+    session_id: str
+    user_message: str
+    current_offer: int
+    hidden_budget: int
+    history: List[Dict[str, str]]
+
 groq_api_key = os.getenv("GROQ_API_KEY")
 groq_client = Groq(api_key=groq_api_key) if groq_api_key else None
 
@@ -342,6 +362,284 @@ async def cv_global_tailor(req: TailorRequestModel):
     except Exception as e:
         logger.error(f"Global tailoring loop pipeline failed: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Tailoring engine compilation error: {str(e)}")
+
+COHERENCE_SYSTEM_PROMPT = """You are a strict resume coherence auditor. Given a parsed resume JSON with sections: skills[], experience[{role, company, bullets[]}], projects[{name, bullets[]}], education[], perform the following checks and return ONLY valid JSON:
+1. skill_orphans: skills listed but not evidenced anywhere in experience or project bullets (semantic match, not just exact string — 'ML' should match 'machine learning')
+2. experience_underclaimed: technologies/tools mentioned in bullets but absent from the skills section
+3. impact_gap: bullet points with no quantifiable metric (no numbers, percentages, or scale indicators)
+4. timeline_flags: roles with suspicious overlapping dates or unexplained gaps > 6 months
+5. seniority_mismatch: language used in bullets doesn't match the claimed seniority level of the role
+6. keyword_density: skills section has >15 items with no grouping — flag as ATS noise risk
+Return: { "score": 0, "skill_orphans": [{"skill": "", "suggestion": ""}], "experience_underclaimed": [{"term": "", "found_in": ""}], "impact_gap": [{"bullet": "", "rewrite_suggestion": ""}], "timeline_flags": [{"role": "", "issue": ""}], "seniority_mismatch": [{"role": "", "issue": ""}], "keyword_density_flag": false }"""
+
+@app.post("/analyze/coherence")
+async def analyze_coherence(req: CoherenceRequestModel):
+    logger.info(f"Handling /analyze/coherence for CV ID: {req.cv_id}")
+    if not supabase:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    if not groq_client:
+        raise HTTPException(status_code=503, detail="Groq unavailable")
+    
+    # Fetch CV Variant
+    res = await asyncio.to_thread(lambda: supabase.table("user_cv_variants").select("cv_profile, user_id").eq("id", req.cv_id).execute())
+    if not res.data:
+        raise HTTPException(status_code=404, detail="CV not found")
+        
+    cv_data = res.data[0].get("cv_profile", {})
+    user_id = res.data[0].get("user_id")
+    
+    try:
+        model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": COHERENCE_SYSTEM_PROMPT},
+                {"role": "user", "content": json.dumps(cv_data, indent=2)}
+            ],
+            model=model,
+            temperature=0.2,
+            response_format={"type": "json_object"}
+        )
+        report = json.loads(response.choices[0].message.content)
+        
+        insert_payload = {
+            "user_id": user_id,
+            "cv_variant_id": req.cv_id,
+            "score": report.get("score", 0),
+            "skill_orphans": report.get("skill_orphans", []),
+            "experience_underclaimed": report.get("experience_underclaimed", []),
+            "impact_gap": report.get("impact_gap", []),
+            "timeline_flags": report.get("timeline_flags", []),
+            "seniority_mismatch": report.get("seniority_mismatch", []),
+            "keyword_density_flag": report.get("keyword_density_flag", False)
+        }
+        await asyncio.to_thread(lambda: supabase.table("cv_coherence_reports").insert(insert_payload).execute())
+        
+        return report
+    except Exception as e:
+        logger.error(f"Coherence analysis failed: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+REDTEAM_AGENT_A_PROMPT = """You are a hostile ATS system and a skeptical senior recruiter. Read this resume JSON and return a JSON array of attacks: [{"target_section": "...", "target_text": "...", "attack_type": "vague"|"unverifiable"|"keyword_stuffed"|"buzzword"|"gap", "severity": 1|2|3, "attack_reasoning": "..."}]. Be ruthless. Find at least 8 attacks."""
+
+REDTEAM_AGENT_B_PROMPT = """You are an expert resume writer. Given an attack object and the original text, return: {"original": "...", "patched_version": "...", "reasoning": "..."}. The patch must be concrete, metric-driven, and ATS-friendly."""
+
+@app.post("/analyze/redteam")
+async def analyze_redteam(req: RedTeamRequestModel):
+    logger.info(f"Handling /analyze/redteam for CV ID: {req.cv_id}")
+    if not supabase or not groq_client:
+        raise HTTPException(status_code=503, detail="Services unavailable")
+        
+    res = await asyncio.to_thread(lambda: supabase.table("user_cv_variants").select("cv_profile, user_id").eq("id", req.cv_id).execute())
+    if not res.data:
+        raise HTTPException(status_code=404, detail="CV not found")
+        
+    cv_data = res.data[0].get("cv_profile", {})
+    user_id = res.data[0].get("user_id")
+    model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    
+    try:
+        response_a = await asyncio.to_thread(
+            lambda: groq_client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": REDTEAM_AGENT_A_PROMPT},
+                    {"role": "user", "content": json.dumps(cv_data, indent=2)}
+                ],
+                model=model,
+                temperature=0.3,
+                response_format={"type": "json_object"}
+            )
+        )
+        content_a = response_a.choices[0].message.content
+        try:
+            attacks_data = json.loads(content_a)
+            attacks = attacks_data.get("attacks", attacks_data)
+            if not isinstance(attacks, list):
+                attacks = [attacks]
+        except Exception:
+            attacks = []
+            
+        clean_attacks = []
+        attack_surface_score = 0
+        for atk in attacks:
+            if isinstance(atk, dict) and "target_text" in atk:
+                clean_attacks.append(atk)
+                attack_surface_score += atk.get("severity", 1) * 10
+                
+        attack_surface_score = min(attack_surface_score, 100)
+        
+        async def patch_attack(atk):
+            try:
+                prompt = f"Original text: {atk.get('target_text')}\nAttack rationale: {atk.get('attack_reasoning')}"
+                resp = await asyncio.to_thread(
+                    lambda: groq_client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": REDTEAM_AGENT_B_PROMPT},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model=model,
+                        temperature=0.2,
+                        response_format={"type": "json_object"}
+                    )
+                )
+                return json.loads(resp.choices[0].message.content)
+            except Exception as e:
+                logger.error(f"Agent B failed on attack: {e}")
+                return None
+                
+        patches = await asyncio.gather(*(patch_attack(a) for a in clean_attacks))
+        clean_patches = [p for p in patches if p]
+        
+        report = {
+            "attack_surface_score": attack_surface_score,
+            "attacks": clean_attacks,
+            "patches": clean_patches
+        }
+        
+        insert_payload = {
+            "user_id": user_id,
+            "cv_variant_id": req.cv_id,
+            "attack_surface_score": attack_surface_score,
+            "attacks": clean_attacks,
+            "patches": clean_patches
+        }
+        await asyncio.to_thread(lambda: supabase.table("cv_redteam_reports").insert(insert_payload).execute())
+        
+        return report
+    except Exception as e:
+        logger.error(f"Redteam analysis failed: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/interview/vocal-analysis")
+async def vocal_analysis(req: VocalAnalysisRequest):
+    logger.info(f"Vocal analysis for session {req.session_id} turn {req.turn_index}")
+    word_count = len(req.transcript_text.split())
+    wpm = round((word_count / max(req.audio_duration_seconds, 1)) * 60)
+    
+    filler_words = ["um", "uh", "like", "you know", "basically", "literally", "so", "right"]
+    transcript_lower = req.transcript_text.lower()
+    filler_count = sum(transcript_lower.count(f) for f in filler_words)
+    
+    filler_rate = round((filler_count / max(word_count, 1)) * 100, 1)
+    
+    expected_speech_duration = word_count / 2.5
+    silence_ratio = round(max(0, req.audio_duration_seconds - expected_speech_duration) / max(req.audio_duration_seconds, 1) * 100, 1)
+    
+    confidence_score = 100 - (filler_rate * 2) - (abs(wpm - 130) * 0.3)
+    confidence_score = max(0, min(100, round(confidence_score)))
+    
+    metrics = {
+        "wpm": wpm,
+        "filler_rate": filler_rate,
+        "silence_ratio": silence_ratio,
+        "confidence_score": confidence_score
+    }
+    
+    if supabase:
+        res = await asyncio.to_thread(
+            lambda: supabase.table("interview_transcripts")
+            .select("id, feedback_metadata")
+            .eq("session_id", req.session_id)
+            .eq("message_owner", "user")
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if res.data:
+            transcript_id = res.data[0]["id"]
+            existing_meta = res.data[0].get("feedback_metadata") or {}
+            existing_meta.update({"vocal_metrics": metrics})
+            
+            await asyncio.to_thread(
+                lambda: supabase.table("interview_transcripts")
+                .update({"feedback_metadata": existing_meta})
+                .eq("id", transcript_id)
+                .execute()
+            )
+            
+    return metrics
+
+NEGOTIATION_AGENT_PROMPT = """You are an HR recruiter roleplaying a salary negotiation.
+Your hidden maximum budget is ${hidden_budget}.
+The current offer is ${current_offer}.
+The user is negotiating. If they ask for more than your hidden budget, you must act reluctant and refuse firmly but professionally.
+If they ask for something within budget, you can concede slightly or accept.
+Analyze their negotiation tactic and give a feedback_score (1-100).
+Return ONLY a JSON object: {"ai_response": "...", "new_offer": int, "feedback_score": int}"""
+
+@app.post("/negotiate/turn")
+async def negotiate_turn(req: NegotiationTurnRequest):
+    if not groq_client:
+        raise HTTPException(status_code=503, detail="Services unavailable")
+        
+    hidden_budget = req.hidden_budget
+    history_text = "\n".join([f"{t.get('role', 'user')}: {t.get('content', '')}" for t in req.history])
+    
+    prompt = NEGOTIATION_AGENT_PROMPT.replace("${hidden_budget}", str(hidden_budget)).replace("${current_offer}", str(req.current_offer))
+    model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    
+    try:
+        resp = await asyncio.to_thread(lambda: groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": f"Transcript history:\n{history_text}\n\nUser just said: {req.user_message}\n\nRespond in JSON format."}
+            ],
+            model=model,
+            temperature=0.4,
+            response_format={"type": "json_object"}
+        ))
+        
+        parsed = json.loads(resp.choices[0].message.content)
+        ai_response = parsed.get("ai_response", "I'm sorry, I cannot meet that request.")
+        new_offer = parsed.get("new_offer", req.current_offer)
+        feedback_score = parsed.get("feedback_score", 50)
+        
+        return {
+            "ai_response": ai_response,
+            "new_offer": new_offer,
+            "feedback_score": feedback_score
+        }
+    except Exception as e:
+        logger.error(f"Negotiation failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/analyze/skill-topology")
+async def get_skill_topology(user_id: str):
+    logger.info(f"Extracting skill topology for user: {user_id}")
+    if not supabase:
+        raise HTTPException(status_code=503, detail="Services unavailable")
+        
+    res = await asyncio.to_thread(lambda: supabase.table("user_cv_variants").select("id, cv_profile, label").eq("user_id", user_id).execute())
+    if not res.data:
+        return {"nodes": [], "links": []}
+        
+    nodes = []
+    links = []
+    node_set = set()
+    
+    for variant in res.data:
+        v_id = variant["id"]
+        v_name = variant.get("label", "CV Variant")
+        nodes.append({"id": v_id, "group": 1, "name": v_name})
+        node_set.add(v_id)
+        
+        cv_profile = variant.get("cv_profile", {})
+        skills = cv_profile.get("skills", {})
+        if isinstance(skills, dict):
+            all_skills = skills.get("technical", []) + skills.get("soft", [])
+        elif isinstance(skills, list):
+            all_skills = skills
+        else:
+            all_skills = []
+            
+        for skill in all_skills:
+            if not isinstance(skill, str): continue
+            s_id = f"skill_{skill.lower()}"
+            if s_id not in node_set:
+                nodes.append({"id": s_id, "group": 2, "name": skill})
+                node_set.add(s_id)
+            links.append({"source": v_id, "target": s_id, "value": 1})
+            
+    return {"nodes": nodes, "links": links}
 
 @app.post("/interview/chat", response_model=InterviewChatResponse)
 async def interview_chat(req: InterviewChatRequest):
