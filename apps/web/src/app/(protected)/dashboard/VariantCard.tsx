@@ -157,6 +157,9 @@ export function VariantCard({ variant }: { variant: any }) {
               )}
             </PopoverContent>
           </Popover>
+          <Link href={`/dashboard/redteam?variant=${variant.id}`} className="text-[11px] text-zinc-500 hover:text-indigo-600 font-bold hover:underline flex items-center gap-1 mr-2">
+            Audit Vulnerabilities
+          </Link>
           <Link href={`/cv/editor/${variant.id}`} className="text-[11px] text-indigo-600 font-bold hover:underline flex items-center gap-1">
             Open Editor <ArrowRight className="h-3 w-3" />
           </Link>
