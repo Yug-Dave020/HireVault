@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, Video, User, ArrowRight } from "lucide-react";
 
@@ -64,17 +65,15 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-[#f4f5f6] flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-3xl bg-white rounded-[24px] shadow-sm border border-zinc-200/50 p-8 sm:p-12 text-center space-y-10">
 
-        <div className="flex items-center justify-center gap-2.5">
-          <div className="h-9 w-9 shrink-0">
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
-              <rect width="100" height="100" rx="30" fill="#1da074" />
-              <rect x="18" y="34" width="64" height="46" rx="10" stroke="white" stroke-width="8" stroke-linejoin="round" />
-              <path d="M36 34V22C36 17.5 39.5 14 44 14H56C60.5 14 64 17.5 64 22V34" stroke="white" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" />
-              <path d="M36 34V80" stroke="white" stroke-width="8" stroke-linecap="round" />
-              <path d="M64 34V80" stroke="white" stroke-width="8" stroke-linecap="round" />
-            </svg>
-          </div>
-          <span className="text-lg font-black tracking-tight text-zinc-900 leading-none">HireVault</span>
+        <div className="flex items-center justify-center">
+          <Image
+            src="/logo-dark.png"
+            alt="HireVault Logo"
+            width={160}
+            height={36}
+            className="h-9 w-auto object-contain"
+            priority
+          />
         </div>
 
         <div className="space-y-3">

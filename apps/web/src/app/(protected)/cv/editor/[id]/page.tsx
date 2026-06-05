@@ -546,6 +546,15 @@ export default function CVEditorPage() {
             Share Profile
           </Button>
 
+          <Button
+            variant="outline"
+            onClick={() => setIsTailoringOpen(true)}
+            className="border-zinc-200 text-indigo-600 font-bold h-9 text-xs rounded-xl hover:bg-indigo-50"
+          >
+            <Sparkles className="h-3.5 w-3.5 mr-1" />
+            Match Job Description
+          </Button>
+
 
           <Button
             variant="outline"
@@ -1133,20 +1142,106 @@ export default function CVEditorPage() {
               Structural Theme Preferences
             </h3>
 
-            <div className="space-y-3">
-              {THEMES.map(theme => (
-                <button
-                  key={theme.id}
-                  onClick={() => updateDesign("theme", theme.id)}
-                  className={`w-full text-left p-3.5 rounded-xl border-2 transition-all flex flex-col gap-1 ${profile?.design_prefs?.theme === theme.id
-                    ? "border-[var(--hv-teal)] bg-emerald-50/15"
-                    : "border-slate-100 bg-slate-50 hover:border-slate-300 hover:bg-white"
-                    }`}
-                >
-                  <span className="text-xs font-bold text-slate-800">{theme.name}</span>
-                  <span className="text-[11px] text-slate-400 leading-normal">{theme.desc}</span>
-                </button>
-              ))}
+            <div className="flex gap-4 overflow-x-auto pb-4 snap-x scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {/* Template 1: Classic Minimalist (Green) */}
+              <button 
+                onClick={() => updateDesign("theme", "modern_minimalist")}
+                className={`flex-shrink-0 w-[180px] h-[260px] bg-white rounded-sm p-3 shadow-md snap-center transform hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden border-2 text-left ${profile?.design_prefs?.theme === "modern_minimalist" ? "border-[#1da074] ring-2 ring-[#1da074]/20" : "border-slate-200"}`}
+              >
+                {/* Resume Content */}
+                <div className="flex flex-col h-full text-[4px] leading-[1.4] text-zinc-800">
+                  <h1 className="text-[9px] font-bold text-[#1da074] mb-1">Yug Dave</h1>
+                  <p className="text-zinc-500 mb-1.5">New York, NY • yugdave@email.com</p>
+                  
+                  <p className="mb-2 text-zinc-600">
+                    7+ years of software engineering experience, driving product growth and engagement...
+                  </p>
+                  
+                  <h2 className="font-bold text-[5px] uppercase mb-1">Work Experience</h2>
+                  
+                  <div className="mb-2">
+                    <h3 className="font-bold">Senior Software Engineer • New York</h3>
+                    <p className="font-bold mb-0.5">TechCorp Inc.</p>
+                    <ul className="list-disc pl-2 space-y-0.5 text-zinc-600">
+                      <li>Increased system throughput by 30% in 3 months...</li>
+                      <li>Improved company's online presence by 25%...</li>
+                    </ul>
+                  </div>
+                </div>
+                {profile?.design_prefs?.theme === "modern_minimalist" && (
+                  <div className="absolute top-2 right-2 bg-[#1da074] text-white text-[8px] font-bold px-1.5 py-0.5 rounded">Selected</div>
+                )}
+                <div className="absolute bottom-2 left-0 w-full text-center text-xs font-bold text-slate-800 bg-white/80 backdrop-blur-sm py-1 border-t border-slate-100">Modern Minimalist</div>
+              </button>
+
+              {/* Template 2: Executive (Red/Border) */}
+              <button 
+                onClick={() => updateDesign("theme", "classic_executive")}
+                className={`flex-shrink-0 w-[180px] h-[260px] bg-white rounded-sm p-3 shadow-md snap-center transform hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden border-2 text-left ${profile?.design_prefs?.theme === "classic_executive" ? "border-red-600 ring-2 ring-red-600/20" : "border-slate-200"}`}
+              >
+                {/* Resume Content */}
+                <div className="flex flex-col h-full text-[4px] leading-[1.4] text-zinc-800">
+                  <div className="border-t-2 border-red-600 w-full mb-1.5"></div>
+                  <h1 className="text-[9px] font-bold text-red-600 mb-1">Yug Dave</h1>
+                  <p className="text-zinc-500 mb-1.5">New York, NY • yugdave@email.com</p>
+                  
+                  <p className="mb-2 text-zinc-600">
+                    7+ years of software engineering experience, driving product growth and engagement...
+                  </p>
+                  
+                  <h2 className="font-bold text-[5px] text-red-600 uppercase mb-1">Work Experience</h2>
+                  
+                  <div className="mb-2">
+                    <h3 className="font-bold">Senior Software Engineer • New York</h3>
+                    <p className="font-bold mb-0.5">TechCorp Inc.</p>
+                    <ul className="list-disc pl-2 space-y-0.5 text-zinc-600">
+                      <li>Increased system throughput by 30% in 3 months...</li>
+                      <li>Improved company's online presence by 25%...</li>
+                    </ul>
+                  </div>
+                </div>
+                {profile?.design_prefs?.theme === "classic_executive" && (
+                  <div className="absolute top-2 right-2 bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded">Selected</div>
+                )}
+                <div className="absolute bottom-2 left-0 w-full text-center text-xs font-bold text-slate-800 bg-white/80 backdrop-blur-sm py-1 border-t border-slate-100">Classic Executive</div>
+              </button>
+
+              {/* Template 3: Professional (Centered/Black) */}
+              <button 
+                onClick={() => updateDesign("theme", "tech_professional")}
+                className={`flex-shrink-0 w-[180px] h-[260px] bg-white rounded-sm p-3 shadow-md snap-center transform hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden border-2 text-left ${profile?.design_prefs?.theme === "tech_professional" ? "border-black ring-2 ring-black/20" : "border-slate-200"}`}
+              >
+                {/* Resume Content */}
+                <div className="flex flex-col h-full text-[4px] leading-[1.4] text-zinc-800">
+                  <div className="text-center mb-1.5">
+                    <h1 className="text-[9px] font-bold text-black mb-1">Yug Dave</h1>
+                    <p className="text-zinc-500">New York, NY • yugdave@email.com</p>
+                  </div>
+                  <div className="border-t border-black w-full mb-1.5"></div>
+                  
+                  <p className="mb-2 text-zinc-600 text-center">
+                    7+ years of software engineering experience, driving product growth and engagement...
+                  </p>
+                  
+                  <h2 className="font-bold text-[5px] text-black uppercase mb-1 border-b border-black pb-0.5 inline-block w-full">Work Experience</h2>
+                  
+                  <div className="mb-2 mt-1">
+                    <div className="flex justify-between items-center mb-0.5">
+                      <h3 className="font-bold">Senior Software Engineer</h3>
+                      <span className="text-zinc-500 text-[3px]">New York</span>
+                    </div>
+                    <p className="font-bold mb-0.5">TechCorp Inc.</p>
+                    <ul className="list-disc pl-2 space-y-0.5 text-zinc-600">
+                      <li>Increased system throughput by 30% in 3 months...</li>
+                      <li>Improved company's online presence by 25%...</li>
+                    </ul>
+                  </div>
+                </div>
+                {profile?.design_prefs?.theme === "tech_professional" && (
+                  <div className="absolute top-2 right-2 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded">Selected</div>
+                )}
+                <div className="absolute bottom-2 left-0 w-full text-center text-xs font-bold text-slate-800 bg-white/80 backdrop-blur-sm py-1 border-t border-slate-100">Tech Professional</div>
+              </button>
             </div>
 
             <div className="space-y-2 pt-2 border-t border-slate-100">
@@ -1167,20 +1262,21 @@ export default function CVEditorPage() {
             </div>
           </div>
 
-          <div className="flex-1 bg-white rounded-3xl p-6 sm:p-8 shadow-inner border border-slate-200/80 space-y-6 font-sans relative overflow-hidden" style={{
-            fontFamily: profile?.design_prefs?.theme === "classic_executive" ? "Georgia, serif" : "Inter, sans-serif"
+          <div className="flex-1 bg-white rounded-3xl p-6 sm:p-8 shadow-inner border border-slate-200/80 space-y-5 font-sans relative overflow-hidden" style={{
+            fontFamily: profile?.design_prefs?.theme === "classic_executive" ? "Georgia, serif" : profile?.design_prefs?.theme === "tech_professional" ? "Arial, sans-serif" : "Inter, sans-serif",
+            borderTop: profile?.design_prefs?.theme === "classic_executive" ? `6px solid ${profile?.design_prefs?.accent_color || "#1d9e75"}` : "none"
           }}>
             <div className="absolute top-2 right-2 bg-slate-200 text-slate-500 font-bold text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider">
               Preview Card
             </div>
 
-            <div className="text-center space-y-1">
-              <h2 className="text-xl font-bold text-slate-900" style={{
-                color: profile?.design_prefs?.theme === "classic_executive" ? "#111" : "inherit"
+            <div className={`space-y-1 pb-3 ${profile?.design_prefs?.theme === "tech_professional" ? "text-center border-b border-black" : "text-left"}`}>
+              <h2 className="text-xl font-bold" style={{
+                color: profile?.design_prefs?.theme === "classic_executive" ? (profile?.design_prefs?.accent_color || "#1d9e75") : profile?.design_prefs?.theme === "tech_professional" ? "#111" : (profile?.design_prefs?.accent_color || "#1d9e75")
               }}>
                 {profile.personal.full_name || "YOUR NAME"}
               </h2>
-              <div className="text-[10px] text-slate-400 flex flex-wrap justify-center gap-2">
+              <div className={`text-[10px] text-slate-500 flex flex-wrap gap-2 ${profile?.design_prefs?.theme === "tech_professional" ? "justify-center font-mono" : "justify-start"}`}>
                 <span>{profile.personal.email || "email@domain.com"}</span>
                 <span>|</span>
                 <span>{profile.personal.phone || "Phone number"}</span>
@@ -1190,38 +1286,38 @@ export default function CVEditorPage() {
             </div>
 
             {profile.personal.summary && (
-              <div className="space-y-1">
+              <div className="space-y-1 pt-1">
                 <h4 className="text-[11px] font-bold uppercase tracking-wider pb-0.5 border-b-2" style={{
-                  borderColor: profile?.design_prefs?.accent_color,
-                  fontFamily: profile?.design_prefs?.theme === "tech_professional" ? "Courier, monospace" : "inherit"
+                  borderColor: profile?.design_prefs?.theme === "tech_professional" ? "#111" : (profile?.design_prefs?.accent_color || "#1d9e75"),
+                  color: profile?.design_prefs?.theme === "classic_executive" ? (profile?.design_prefs?.accent_color || "#1d9e75") : "#111",
                 }}>
                   Professional Summary
                 </h4>
-                <p className="text-[10px] text-slate-500 leading-relaxed text-justify">
+                <p className="text-[10px] text-slate-600 leading-relaxed text-justify pt-1">
                   {profile.personal.summary}
                 </p>
               </div>
             )}
 
-            <div className="space-y-1">
+            <div className="space-y-1 pt-1">
               <h4 className="text-[11px] font-bold uppercase tracking-wider pb-0.5 border-b-2" style={{
-                borderColor: profile?.design_prefs?.accent_color,
-                fontFamily: profile?.design_prefs?.theme === "tech_professional" ? "Courier, monospace" : "inherit"
+                borderColor: profile?.design_prefs?.theme === "tech_professional" ? "#111" : (profile?.design_prefs?.accent_color || "#1d9e75"),
+                color: profile?.design_prefs?.theme === "classic_executive" ? (profile?.design_prefs?.accent_color || "#1d9e75") : "#111",
               }}>
                 Work Experience
               </h4>
               {profile.experience.length > 0 ? (
                 profile.experience.slice(0, 2).map((exp: any, i: number) => (
-                  <div key={i} className="text-[10px] space-y-0.5 py-1">
+                  <div key={i} className="text-[10px] space-y-0.5 py-1.5">
                     <div className="flex justify-between font-bold text-slate-800">
                       <span>{exp.title || "Job Title"}</span>
-                      <span className="font-normal text-slate-400">{exp.start_date || "YYYY"} – {exp.end_date || (exp.is_current ? "Present" : "YYYY")}</span>
+                      <span className={`font-normal text-slate-500 ${profile?.design_prefs?.theme === "tech_professional" ? "font-mono text-[9px]" : ""}`}>{exp.start_date || "YYYY"} – {exp.end_date || (exp.is_current ? "Present" : "YYYY")}</span>
                     </div>
                     <div className="text-slate-500 italic">{exp.company || "Company Name"}{exp.location ? `, ${exp.location}` : ""}</div>
                     {exp.bullets && exp.bullets[0] && (
-                      <ul className="list-disc pl-4 text-slate-400 space-y-0.5 mt-1">
+                      <ul className="list-disc pl-4 text-slate-600 space-y-0.5 mt-1.5">
                         {exp.bullets.slice(0, 2).map((b: string, idx: number) => (
-                          <li key={idx} className="text-[9px] leading-relaxed">{b || "Achievement detail..."}</li>
+                          <li key={idx} className="text-[9.5px] leading-relaxed text-justify">{b || "Achievement detail..."}</li>
                         ))}
                       </ul>
                     )}
@@ -1232,19 +1328,19 @@ export default function CVEditorPage() {
               )}
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1 pt-1">
               <h4 className="text-[11px] font-bold uppercase tracking-wider pb-0.5 border-b-2" style={{
-                borderColor: profile?.design_prefs?.accent_color,
-                fontFamily: profile?.design_prefs?.theme === "tech_professional" ? "Courier, monospace" : "inherit"
+                borderColor: profile?.design_prefs?.theme === "tech_professional" ? "#111" : (profile?.design_prefs?.accent_color || "#1d9e75"),
+                color: profile?.design_prefs?.theme === "classic_executive" ? (profile?.design_prefs?.accent_color || "#1d9e75") : "#111",
               }}>
                 Skills & Spoken Languages
               </h4>
-              <div className="text-[10px] text-slate-500 space-y-0.5 pt-1">
+              <div className="text-[10px] text-slate-600 space-y-1 pt-1.5">
                 {profile.skills.technical.length > 0 && (
-                  <div><strong className="text-slate-700">Technical:</strong> {profile.skills.technical.slice(0, 5).join(", ")}</div>
+                  <div><strong className={`text-slate-800 ${profile?.design_prefs?.theme === "tech_professional" ? "font-mono text-[9px]" : ""}`}>Technical:</strong> {profile.skills.technical.slice(0, 5).join(", ")}</div>
                 )}
                 {profile.skills.soft.length > 0 && (
-                  <div><strong className="text-slate-700">Soft:</strong> {profile.skills.soft.slice(0, 5).join(", ")}</div>
+                  <div><strong className={`text-slate-800 ${profile?.design_prefs?.theme === "tech_professional" ? "font-mono text-[9px]" : ""}`}>Soft:</strong> {profile.skills.soft.slice(0, 5).join(", ")}</div>
                 )}
               </div>
             </div>

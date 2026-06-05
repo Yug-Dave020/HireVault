@@ -7,6 +7,7 @@
  */
 
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { Briefcase } from "lucide-react";
 import { UserNav } from "./user-nav";
@@ -41,12 +42,14 @@ export async function TopNav() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/dashboard" className="hv-nav-logo" aria-label="HireVault home">
-          <div className="hv-logo-icon-sm">
-            <Briefcase className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-[15px] font-bold tracking-tight hidden sm:block">
-            HireVault
-          </span>
+          <Image
+            src="/logo-dark.png"
+            alt="HireVault Logo"
+            width={160}
+            height={36}
+            className="h-8 w-auto object-contain"
+            priority
+          />
         </Link>
 
         {/* Nav links (client component — needs usePathname) */}

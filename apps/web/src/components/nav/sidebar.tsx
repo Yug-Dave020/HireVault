@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, FileText, Video, User, LogOut, ChevronLeft, ChevronRight
@@ -61,36 +62,21 @@ export function Sidebar({ displayName, email, isCollapsed, onToggle }: SidebarPr
       <div className="space-y-6">
 
         {/* Branding & Header Section */}
-        <div className={`flex ${isCollapsed ? "flex-col items-center space-y-3 justify-center w-full" : "items-center justify-between px-2"}`}>
+        <div className={`relative flex ${isCollapsed ? "flex-col items-center space-y-3 justify-center w-full" : "items-center px-2 min-h-[40px]"}`}>
           {!isCollapsed ? (
-            <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="h-8 w-8 shrink-0">
-                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
-                  <rect width="100" height="100" rx="30" fill="#1da074" />
-                  <rect x="18" y="34" width="64" height="46" rx="10" stroke="white" strokeWidth="8" strokeLinejoin="round" />
-                  <path d="M36 34V22C36 17.5 39.5 14 44 14H56C60.5 14 64 17.5 64 22V34" stroke="white" strokeWidth="8" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d="M36 34V80" stroke="white" strokeWidth="8" strokeLinecap="round" />
-                  <path d="M64 34V80" stroke="white" strokeWidth="8" strokeLinecap="round" />
-                </svg>
-              </div>
-              <span className="text-[15px] font-black tracking-tight text-white leading-none">HireVault</span>
+            <Link href="/dashboard" className="flex w-full items-center justify-center mt-2 pr-6">
+              <Image src="/logo.png" alt="HireVault Logo" width={160} height={36} className="h-10 w-auto object-contain" priority />
             </Link>
           ) : (
-            <Link href="/dashboard" className="h-8 w-8 shrink-0 block">
-              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
-                <rect width="100" height="100" rx="30" fill="#1da074" />
-                <rect x="18" y="34" width="64" height="46" rx="10" stroke="white" strokeWidth="8" strokeLinejoin="round" />
-                <path d="M36 34V22C36 17.5 39.5 14 44 14H56C60.5 14 64 17.5 64 22V34" stroke="white" strokeWidth="8" strokeLinejoin="round" strokeLinecap="round" />
-                <path d="M36 34V80" stroke="white" strokeWidth="8" strokeLinecap="round" />
-                <path d="M64 34V80" stroke="white" strokeWidth="8" strokeLinecap="round" />
-              </svg>
+            <Link href="/dashboard" className="flex items-center justify-center w-full h-8 mt-2">
+              <Image src="/logo-icon.png" alt="HireVault Logo Icon" width={32} height={32} className="h-8 w-8 object-contain" priority />
             </Link>
           )}
 
           {/* Corrected Toggle Button Positioning Container */}
           <button
             onClick={onToggle}
-            className={`p-1.5 rounded-lg border border-slate-800 bg-slate-800/40 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors ${isCollapsed ? "w-9 h-9 flex items-center justify-center mx-auto" : "ml-auto"
+            className={`p-1.5 rounded-lg border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors z-50 ${isCollapsed ? "w-9 h-9 flex items-center justify-center mx-auto bg-slate-800/40" : "absolute -right-4 top-1/2 -translate-y-1/2 bg-slate-900"
               }`}
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-3.5 w-3.5" />}
