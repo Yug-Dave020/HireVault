@@ -3,6 +3,7 @@
 [![Project Status](https://img.shields.io/badge/Status-Active--Development-00e5a0?style=for-the-badge)](#)
 [![Tech Stack](https://img.shields.io/badge/Stack-Next.js%20%2B%20FastAPI-blue?style=for-the-badge)](#-tech-stack)
 [![License](https://img.shields.io/badge/License-MIT-gray?style=for-the-badge)](./LICENSE)
+[![CI/CD Pipeline](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/Yug-Dave020/HireVault/actions/workflows/ci.yml)
 
 HireVault is a **Full-Stack Career Acceleration Ecosystem** designed to bridge the gap between job applications and successfully landing offers. Built with a robust **Next.js 14** frontend and a high-performance **FastAPI** Python worker, HireVault transforms the stressful job hunting process into a structured, data-driven workflow.
 
@@ -72,29 +73,4 @@ graph TD
 **Challenge**: Modifying nested arrays of data (e.g., adding a suggested "Skill Gap" to a user's core profile) from a Client Component while ensuring the Next.js server cache remains in sync.
 **Solution**: Leveraged direct Supabase client mutations wrapped in a `router.refresh()` lifecycle flow. This bypasses the need for bloated global state managers (like Redux), keeping the UI incredibly snappy while ensuring the PostgreSQL database is the single source of truth.
 
----
 
-## ⬢ Manual Setup (For Developers)
-
-### 1. Prerequisites
-You must have these installed on your machine:
-- **Node.js 18+** & **pnpm**
-- **Python 3.11+**
-- **Supabase Project** & **Groq API Key**
-
-### 2. Environment Setup
-1. Clone the repository.
-2. Duplicate `.env.example` into `.env` at the root of the project.
-3. Fill in your `GROQ_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
-
-### 3. Start the Application
-- **Frontend**: In the root folder, run `pnpm install` and then `pnpm dev`.
-- **Backend Worker**: 
-  ```bash
-  cd apps/worker
-  python -m venv .venv
-  source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-  pip install -r requirements.txt
-  uvicorn main:app --reload --port 8000
-  ```
-- **Access**: Open your browser to `http://localhost:3000`.
