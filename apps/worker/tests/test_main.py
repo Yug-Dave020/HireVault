@@ -1,4 +1,8 @@
 import pytest
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from fastapi.testclient import TestClient
 from main import app
 
@@ -20,9 +24,7 @@ def test_health_check():
     assert response.json() == {"status": "ok"}
 
 def test_cv_init():
-    # cv_init requires auth, so we pass a mock header (the mock will bypass actual verification if patched correctly)
-    app.dependency_overrides[app.router.dependencies[0].dependency] = lambda: "test_user_id" if app.router.dependencies else None
-    
+    # cv_init requires auth, so we override the dependency
     # Alternatively, simply call it. TestClient handles it if we override auth
     from auth import get_current_user
     app.dependency_overrides[get_current_user] = lambda: "test_user_id"
