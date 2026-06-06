@@ -1,4 +1,4 @@
-import { Activity, Briefcase, Check, Copy, Mic, Target, Zap } from "lucide-react";
+import { Activity, Briefcase, Check, Mic, Zap } from "lucide-react";
 
 export function FeatureGrid() {
   return (

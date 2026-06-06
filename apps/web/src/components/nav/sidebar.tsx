@@ -22,7 +22,7 @@ export function Sidebar({ displayName, email, isCollapsed, onToggle }: SidebarPr
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push("/");
     router.refresh();
   };
 

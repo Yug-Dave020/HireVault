@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { DollarSign, MessageSquare, Send, Award, ArrowRight } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { DollarSign, MessageSquare, Send, ArrowRight } from "lucide-react";
 
 export function NegotiateClient({ userId }: { userId: string }) {
   const [session, setSession] = useState<any>(null);

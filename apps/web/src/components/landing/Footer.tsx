@@ -11,9 +11,9 @@ export function Footer() {
           </div>
           
           <div className="flex gap-8 text-sm text-zinc-500 font-medium">
-            <Link href="#" className="hover:text-zinc-900 transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-zinc-900 transition-colors">Terms of Service</Link>
-            <Link href="#" className="hover:text-zinc-900 transition-colors">Contact</Link>
+            <Link href="/privacy" className="hover:text-zinc-900 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-zinc-900 transition-colors">Terms of Service</Link>
+            <a href="mailto:support@hirevault.com" className="hover:text-zinc-900 transition-colors">Contact</a>
           </div>
         </div>
         

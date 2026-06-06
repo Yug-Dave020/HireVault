@@ -13,12 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-const THEMES = [
-  { id: "modern_minimalist", name: "Modern Minimalist", desc: "Clean sans-serif typography, subtle dividers, robust and highly scannable" },
-  { id: "classic_executive", name: "Classic Executive", desc: "Traditional serif formatting, timeless rules, perfect for traditional industries" },
-  { id: "tech_professional", name: "Tech Professional", desc: "Sleek developer aesthetics, monospace accents, bold structure" }
-];
-
 export default function CVEditorPage() {
   const router = useRouter();
   const params = useParams();
@@ -130,7 +124,7 @@ export default function CVEditorPage() {
       if (!response.ok) throw new Error();
       const data = await response.json();
       setSuggestedSkills(data.recommended_skills || []);
-    } catch (err) {
+    } catch {
       alert("Failed to load skills recommendations.");
     } finally {
       setSkillsLoading(false);
@@ -148,7 +142,7 @@ export default function CVEditorPage() {
         }
       };
       setProfile(updated);
-      persistChanges(updated);
+      persistChanges();
     }
     setSuggestedSkills(prev => prev.filter(s => s !== skill));
   };
@@ -175,7 +169,7 @@ export default function CVEditorPage() {
       const data = await response.json();
       if (data.profile) {
         setProfile(data.profile);
-        persistChanges(data.profile);
+        persistChanges();
         setIsTailoringOpen(false);
         setTailorSuccessToast(true);
         setTimeout(() => setTailorSuccessToast(false), 8000);
@@ -205,7 +199,7 @@ export default function CVEditorPage() {
         try {
           setProfile(JSON.parse(staged));
           hasStagedProfile = true;
-        } catch (_) { }
+        } catch { }
       }
 
 
@@ -235,7 +229,7 @@ export default function CVEditorPage() {
     }
   }, [router, supabase, variantId]);
 
-  async function persistChanges(newProfile: any) {
+  async function persistChanges() {
     // Session storage auto-save removed per user request
   }
 
@@ -248,7 +242,7 @@ export default function CVEditorPage() {
       }
     };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const updateDesign = (field: string, val: string) => {
@@ -260,7 +254,7 @@ export default function CVEditorPage() {
       }
     };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const addExperience = () => {
@@ -272,14 +266,14 @@ export default function CVEditorPage() {
       ]
     };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const removeExperience = (idx: number) => {
     const filtered = profile.experience.filter((_: any, i: number) => i !== idx);
     const updated = { ...profile, experience: filtered };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const updateExperience = (idx: number, field: string, val: any) => {
@@ -287,7 +281,7 @@ export default function CVEditorPage() {
     list[idx] = { ...list[idx], [field]: val };
     const updated = { ...profile, experience: list };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const addBullet = (expIdx: number) => {
@@ -295,7 +289,7 @@ export default function CVEditorPage() {
     list[expIdx].bullets = [...list[expIdx].bullets, ""];
     const updated = { ...profile, experience: list };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const removeBullet = (expIdx: number, bulIdx: number) => {
@@ -303,7 +297,7 @@ export default function CVEditorPage() {
     list[expIdx].bullets = list[expIdx].bullets.filter((_: any, i: number) => i !== bulIdx);
     const updated = { ...profile, experience: list };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const updateBullet = (expIdx: number, bulIdx: number, val: string) => {
@@ -311,7 +305,7 @@ export default function CVEditorPage() {
     list[expIdx].bullets[bulIdx] = val;
     const updated = { ...profile, experience: list };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const addEducation = () => {
@@ -323,14 +317,14 @@ export default function CVEditorPage() {
       ]
     };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const removeEducation = (idx: number) => {
     const filtered = profile.education.filter((_: any, i: number) => i !== idx);
     const updated = { ...profile, education: filtered };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const updateEducation = (idx: number, field: string, val: any) => {
@@ -338,7 +332,7 @@ export default function CVEditorPage() {
     list[idx] = { ...list[idx], [field]: val };
     const updated = { ...profile, education: list };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const addProject = () => {
@@ -350,14 +344,14 @@ export default function CVEditorPage() {
       ]
     };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const removeProject = (idx: number) => {
     const filtered = profile.projects.filter((_: any, i: number) => i !== idx);
     const updated = { ...profile, projects: filtered };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const updateProject = (idx: number, field: string, val: any) => {
@@ -369,7 +363,7 @@ export default function CVEditorPage() {
     }
     const updated = { ...profile, projects: list };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const updateSkillsList = (type: "technical" | "soft", val: string) => {
@@ -381,7 +375,7 @@ export default function CVEditorPage() {
       }
     };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const addLanguage = () => {
@@ -396,7 +390,7 @@ export default function CVEditorPage() {
       }
     };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const removeLanguage = (idx: number) => {
@@ -409,7 +403,7 @@ export default function CVEditorPage() {
       }
     };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   const updateLanguage = (idx: number, field: string, val: string) => {
@@ -423,7 +417,7 @@ export default function CVEditorPage() {
       }
     };
     setProfile(updated);
-    persistChanges(updated);
+    persistChanges();
   };
 
   async function handleManualSave() {
@@ -453,7 +447,7 @@ export default function CVEditorPage() {
           newScore = diagnostics.score || null;
           newCritiques = diagnostics.critiques || null;
         }
-      } catch (_) {
+      } catch {
         console.warn("Could not fetch server critiques on save.");
       }
 
@@ -794,7 +788,14 @@ export default function CVEditorPage() {
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-bold text-slate-700">Professional Summary</Label>
-
+                    <button
+                      type="button"
+                      onClick={() => startEnhancing(profile.personal.summary || "", "summary")}
+                      className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded flex items-center gap-1"
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      AI Suggest
+                    </button>
                   </div>
                   <Textarea
                     value={profile.personal.summary || ""}
@@ -909,7 +910,14 @@ export default function CVEditorPage() {
                               rows={2}
                               className="text-xs w-full pr-24"
                             />
-
+                            <button
+                              type="button"
+                              onClick={() => startEnhancing(bul || "", "bullet", idx, bIdx)}
+                              className="absolute top-2 right-2 text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded flex items-center gap-1"
+                            >
+                              <Sparkles className="h-3 w-3" />
+                              AI
+                            </button>
                           </div>
                           <button
                             type="button"
@@ -1055,7 +1063,14 @@ export default function CVEditorPage() {
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-slate-600">Project Description</Label>
-
+                        <button
+                          type="button"
+                          onClick={() => startEnhancing(proj.description || "", "project", undefined, undefined, idx)}
+                          className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded flex items-center gap-1"
+                        >
+                          <Sparkles className="h-3 w-3" />
+                          AI Suggest
+                        </button>
                       </div>
                       <Textarea
                         value={proj.description || ""}
@@ -1071,7 +1086,44 @@ export default function CVEditorPage() {
 
             {activeSection === "skills" && (
               <div className="space-y-6">
-                <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-3">                </div>
+                <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <Sparkles className="h-4 w-4 text-indigo-500" />
+                        AI Skill Suggestions
+                      </h4>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Generate missing skills based on your target role.</p>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={loadSkillsSuggestions}
+                      disabled={skillsLoading}
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs font-bold text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                    >
+                      {skillsLoading ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                      Generate
+                    </Button>
+                  </div>
+
+                  {suggestedSkills.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {suggestedSkills.map((skill, sIdx) => (
+                        <button
+                          key={sIdx}
+                          type="button"
+                          onClick={() => addSuggestedSkill(skill)}
+                          className="flex items-center gap-1 bg-white border border-indigo-100 hover:border-indigo-300 text-indigo-700 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm transition-all"
+                        >
+                          <Plus className="h-3 w-3" />
+                          {skill}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-slate-700">Technical Skills (comma separated)</Label>
@@ -1164,7 +1216,7 @@ export default function CVEditorPage() {
                     <p className="font-bold mb-0.5">TechCorp Inc.</p>
                     <ul className="list-disc pl-2 space-y-0.5 text-zinc-600">
                       <li>Increased system throughput by 30% in 3 months...</li>
-                      <li>Improved company's online presence by 25%...</li>
+                      <li>Improved company&apos;s online presence by 25%...</li>
                     </ul>
                   </div>
                 </div>
@@ -1196,7 +1248,7 @@ export default function CVEditorPage() {
                     <p className="font-bold mb-0.5">TechCorp Inc.</p>
                     <ul className="list-disc pl-2 space-y-0.5 text-zinc-600">
                       <li>Increased system throughput by 30% in 3 months...</li>
-                      <li>Improved company's online presence by 25%...</li>
+                      <li>Improved company&apos;s online presence by 25%...</li>
                     </ul>
                   </div>
                 </div>
@@ -1233,7 +1285,7 @@ export default function CVEditorPage() {
                     <p className="font-bold mb-0.5">TechCorp Inc.</p>
                     <ul className="list-disc pl-2 space-y-0.5 text-zinc-600">
                       <li>Increased system throughput by 30% in 3 months...</li>
-                      <li>Improved company's online presence by 25%...</li>
+                      <li>Improved company&apos;s online presence by 25%...</li>
                     </ul>
                   </div>
                 </div>

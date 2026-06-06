@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { withApiAuthAndValidation } from "@/lib/api-middleware";
+import { z } from "zod";
+
+const ChatSchema = z.object({
+  personaId: z.string(),
+  currentStage: z.string(),
+  targetPosition: z.string(),
+  messageHistory: z.array(z.any()), // keep it flexible for now, or refine
+  cvVariantId: z.string().optional().nullable(),
+});
 
 export async function POST(req: Request) {
-  try {
+  return withApiAuthAndValidation(req, ChatSchema, async (req, { user, token, parsedBody }) => {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const body = await req.json();
-    const { personaId, currentStage, targetPosition, messageHistory, cvVariantId } = body;
+    const { personaId, currentStage, targetPosition, messageHistory, cvVariantId } = parsedBody;
 
     let cv_profile = {};
 
@@ -20,6 +23,8 @@ export async function POST(req: Request) {
         .from("user_cv_variants")
         .select("cv_profile")
         .eq("id", cvVariantId)
+        // Explicitly scoping to user for IDOR double check
+        .eq("user_id", user.id)
         .single();
         
       if (!variantErr && variantData) {
@@ -28,7 +33,6 @@ export async function POST(req: Request) {
         console.error("Error fetching variant profile:", variantErr);
       }
     } else {
-      // Fetch master profile for CV context fallback
       const { data: masterProfile, error: masterErr } = await supabase
         .from("user_profiles")
         .select("cv_profile")
@@ -45,7 +49,10 @@ export async function POST(req: Request) {
     
     const workerRes = await fetch(`${workerUrl}/interview/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      },
       body: JSON.stringify({
         persona_id: personaId,
         current_stage: currentStage,
@@ -62,8 +69,5 @@ export async function POST(req: Request) {
 
     const aiData = await workerRes.json();
     return NextResponse.json(aiData);
-  } catch (error: any) {
-    console.error("API /interview/chat error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  });
 }

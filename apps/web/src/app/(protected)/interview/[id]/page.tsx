@@ -85,6 +85,7 @@ export default function InterviewChatPage({ params }: { params: { id: string } }
       if (checkVolumeIntervalRef.current) clearInterval(checkVolumeIntervalRef.current);
       window.speechSynthesis.cancel();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {

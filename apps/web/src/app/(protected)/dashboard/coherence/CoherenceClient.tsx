@@ -31,6 +31,7 @@ export function CoherenceClient({ cvId }: { cvId: string }) {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchCoherence();
   }, [cvId]);

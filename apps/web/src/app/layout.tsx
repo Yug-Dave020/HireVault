@@ -16,6 +16,8 @@ export const metadata: Metadata = {
     "Advanced AI CV optimization, parsing, and interview preparation for modern candidates",
 };
 
+import { CookieBanner } from "@/components/landing/CookieBanner";
+
 export default function RootLayout({
   children,
 }: {
@@ -23,7 +25,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <CookieBanner />
+      </body>
     </html>
   );
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Loader2, Briefcase, MailCheck } from "lucide-react";
+import { Loader2, MailCheck } from "lucide-react";
 import { ParticleCanvas } from "@/components/auth/particle-canvas";
 import { StatCounter } from "@/components/auth/stat-counter";
 

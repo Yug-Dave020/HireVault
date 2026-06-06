@@ -1,25 +1,28 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { withApiAuthAndValidation } from "@/lib/api-middleware";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
 const WORKER_URL = process.env.WORKER_URL || "http://127.0.0.1:8000";
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
+const SuggestSchema = z.object({
+  section_type: z.string(),
+  current_text: z.string(),
+  target_role: z.string().optional().nullable(),
+  job_description: z.string().optional().nullable(),
+  full_cv_context: z.record(z.any()).optional().nullable(),
+});
 
+export async function POST(req: Request) {
+  return withApiAuthAndValidation(req, SuggestSchema, async (req, { token, parsedBody }) => {
     const workerRes = await fetch(`${WORKER_URL}/cv/suggest`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({
-        section_type: body.section_type,
-        current_text: body.current_text,
-        target_role: body.target_role,
-        job_description: body.job_description,
-        full_cv_context: body.full_cv_context,
-      }),
+      body: JSON.stringify(parsedBody),
     });
 
     if (!workerRes.ok) {
@@ -32,10 +35,5 @@ export async function POST(req: NextRequest) {
 
     const data = await workerRes.json();
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "Internal server error in suggest proxy pipeline." },
-      { status: 500 }
-    );
-  }
+  });
 }

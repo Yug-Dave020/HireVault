@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { withApiAuthAndValidation } from "@/lib/api-middleware";
 
 export const dynamic = "force-dynamic";
 
 const WORKER_URL = process.env.WORKER_URL || "http://127.0.0.1:8000";
 
-export async function POST(req: NextRequest) {
-  try {
+export async function POST(req: Request) {
+  return withApiAuthAndValidation(req, null, async (req, { token }) => {
     const { searchParams } = new URL(req.url);
     const isInit = searchParams.get("init") === "true";
 
@@ -13,6 +14,9 @@ export async function POST(req: NextRequest) {
       // Call empty profile builder
       const workerRes = await fetch(`${WORKER_URL}/cv/init`, {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
       });
 
       if (!workerRes.ok) {
@@ -37,6 +41,9 @@ export async function POST(req: NextRequest) {
 
     const workerRes = await fetch(`${WORKER_URL}/cv/parse`, {
       method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
       body: workerFormData,
     });
 
@@ -50,10 +57,5 @@ export async function POST(req: NextRequest) {
 
     const data = await workerRes.json();
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "Internal server error in parsing pipeline." },
-      { status: 500 }
-    );
-  }
+  });
 }
