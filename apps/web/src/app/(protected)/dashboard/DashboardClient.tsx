@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import {
-  Sparkles, MapPin, Briefcase, Award, ArrowRight, Video,
-  FileText, TrendingUp, BarChart3, AlertCircle, BookOpen, CheckCircle, Plus, Loader2, DollarSign, Network
+  MapPin, Briefcase, Award, ArrowRight, Video,
+  FileText, TrendingUp, BarChart3, AlertCircle, BookOpen, CheckCircle, Loader2, DollarSign, Network
 } from "lucide-react";
 import Link from "next/link";
 import { VariantCard } from "./VariantCard";
@@ -26,7 +26,6 @@ export function DashboardClient({
   totalVariants,
   activePublicLinks,
   suggestedGaps,
-  cvTheme,
 }: any) {
   const router = useRouter();
   const supabase = createClient();
@@ -39,14 +38,14 @@ export function DashboardClient({
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      
+
       const { data, error } = await supabase.from("interview_sessions").insert({
         user_id: user.id,
         target_position: primaryRole || "Software Engineer",
         selected_persona: "Hiring Manager",
         status: "active"
       }).select().single();
-      
+
       if (data && !error) {
         router.push(`/interview/${data.id}`);
       }
@@ -57,13 +56,11 @@ export function DashboardClient({
     }
   };
 
-  const displayedVariants = showOnlyPublic 
+  const displayedVariants = showOnlyPublic
     ? activeVariants.filter((v: any) => v.is_public)
     : activeVariants;
 
-  const scrollToVault = () => {
-    document.getElementById("variants-vault")?.scrollIntoView({ behavior: "smooth" });
-  };
+
 
   const handleAddSkill = async (skill: string) => {
     setIsAddingSkill(true);
@@ -89,7 +86,6 @@ export function DashboardClient({
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-zinc-500 text-xs font-semibold tracking-wider uppercase">
-                <Sparkles className="h-3.5 w-3.5 text-[#1da074]" />
                 <span>Career Accelerator Console</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
@@ -111,18 +107,12 @@ export function DashboardClient({
                 )}
               </div>
             </div>
-
-            <div className="flex items-center gap-2.5">
-              <Badge variant="outline" className="px-3 py-1 border-zinc-200 text-zinc-600 text-xs rounded-lg bg-white">
-                CV Theme: {cvTheme}
-              </Badge>
-            </div>
           </div>
         </section>
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" aria-label="Metrics Dashboard">
           {/* Card 1: Market Alignment */}
-          <div 
+          <div
             onClick={() => router.push('/dashboard/coherence')}
             className="border border-zinc-200/60 rounded-2xl p-5 bg-white hover:border-indigo-300 hover:shadow-md cursor-pointer transition-all duration-200 flex justify-between items-start shadow-sm group"
           >
@@ -149,13 +139,12 @@ export function DashboardClient({
           </div>
 
           {/* Card 2: Application Pipeline */}
-          <div 
+          <div
             onClick={() => setShowOnlyPublic(!showOnlyPublic)}
-            className={`border rounded-2xl p-5 cursor-pointer transition-all duration-200 flex justify-between items-start shadow-sm group ${
-              showOnlyPublic 
-                ? 'border-blue-400 bg-blue-50/30 shadow-md ring-1 ring-blue-400/20' 
+            className={`border rounded-2xl p-5 cursor-pointer transition-all duration-200 flex justify-between items-start shadow-sm group ${showOnlyPublic
+                ? 'border-blue-400 bg-blue-50/30 shadow-md ring-1 ring-blue-400/20'
                 : 'border-zinc-200/60 bg-white hover:border-blue-300 hover:shadow-md'
-            }`}
+              }`}
           >
             <div className="space-y-1">
               <span className={`text-xs font-semibold uppercase tracking-wider block transition-colors ${showOnlyPublic ? 'text-blue-600' : 'text-zinc-400 group-hover:text-blue-500'}`}>Application Pipeline</span>
@@ -169,9 +158,8 @@ export function DashboardClient({
                 {showOnlyPublic ? "Filtering: Public Links Only" : "Total variants optimized"}
               </p>
             </div>
-            <div className={`h-9 w-9 rounded-xl flex items-center justify-center border transition-colors ${
-              showOnlyPublic ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-100 group-hover:border-blue-200'
-            }`}>
+            <div className={`h-9 w-9 rounded-xl flex items-center justify-center border transition-colors ${showOnlyPublic ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-100 group-hover:border-blue-200'
+              }`}>
               <TrendingUp className="h-4.5 w-4.5" />
             </div>
           </div>
@@ -334,8 +322,8 @@ export function DashboardClient({
                   <BookOpen className="h-4.5 w-4.5 text-teal-600" />
                   <span>Your Core Skills</span>
                 </div>
-                <Link 
-                  href="/dashboard/skill-graph" 
+                <Link
+                  href="/dashboard/skill-graph"
                   className="flex items-center gap-1.5 text-[#1a91f0] hover:text-blue-600 font-medium text-[14px] transition-colors"
                 >
                   View Topology Graph <Network className="h-4 w-4" />

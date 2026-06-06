@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Response, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, UploadFile, File, Response, HTTPException, WebSocket, WebSocketDisconnect, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import asyncio
@@ -22,9 +22,18 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
+from auth import get_current_user
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
 logger = logging.getLogger("hirevault-worker")
 
 app = FastAPI(title="HireVault Worker", version="0.1.0")
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,8 +44,8 @@ app.add_middleware(
 )
 
 class ExportPDFRequestModel(BaseModel):
-    profile: dict
-    design_prefs: dict
+    profile: Dict[str, Any]
+    design_prefs: Optional[Dict[str, Any]] = None
 
 class SuggestionRequestModel(BaseModel):
     section_type: str
@@ -62,7 +71,7 @@ class InterviewChatRequest(BaseModel):
     persona_id: str
     current_stage: str
     target_position: str
-    cv_profile: dict
+    cv_profile: Dict[str, Any]
     message_history: List[Dict[str, str]]
 
 class InterviewChatResponse(BaseModel):
@@ -143,13 +152,15 @@ async def health():
     return {"status": "ok"}
 
 @app.post("/cv/init")
-async def cv_init():
+@limiter.limit("20/minute")
+async def cv_init(request: Request, user_id: str = Depends(get_current_user)):
     logger.info("Handling /cv/init request")
     profile = empty_profile()
     return {"profile": profile}
 
 @app.post("/cv/parse")
-async def cv_parse(file: UploadFile = File(...)):
+@limiter.limit("10/minute")
+async def cv_parse(request: Request, file: UploadFile = File(...), user_id: str = Depends(get_current_user)):
     logger.info(f"Handling /cv/parse request for file: {file.filename}")
     filename = file.filename.lower()
     
@@ -187,7 +198,8 @@ async def cv_parse(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Internal parsing error: {str(e)}")
 
 @app.post("/cv/export-pdf")
-async def cv_export_pdf(req: ExportPDFRequestModel):
+@limiter.limit("10/minute")
+async def cv_export_pdf(request: Request, req: ExportPDFRequestModel, user_id: str = Depends(get_current_user)):
     logger.info("Handling /cv/export-pdf request")
     try:
         pdf_bytes = await export_pdf(req.profile, req.design_prefs)
@@ -205,7 +217,8 @@ async def cv_export_pdf(req: ExportPDFRequestModel):
         raise HTTPException(status_code=500, detail=f"PDF generation error: {str(e)}")
 
 @app.post("/cv/suggest", response_model=AISuggestionResponseModel)
-async def cv_suggest(req: SuggestionRequestModel):
+@limiter.limit("5/minute")
+async def cv_suggest(request: Request, req: SuggestionRequestModel, user_id: str = Depends(get_current_user)):
     logger.info(f"Handling advanced /cv/suggest request for section: {req.section_type}")
     
     if not groq_client:
@@ -307,7 +320,8 @@ async def cv_suggest(req: SuggestionRequestModel):
         raise HTTPException(status_code=500, detail=f"ATS suggestion generation error: {str(e)}")
 
 @app.post("/cv/tailor")
-async def cv_global_tailor(req: TailorRequestModel):
+@limiter.limit("5/minute")
+async def cv_global_tailor(request: Request, req: TailorRequestModel, user_id: str = Depends(get_current_user)):
     logger.info("Executing global whole-CV tailoring analysis loop via Groq")
     
     if not groq_client:
@@ -373,7 +387,8 @@ COHERENCE_SYSTEM_PROMPT = """You are a strict resume coherence auditor. Given a 
 Return: { "score": 0, "skill_orphans": [{"skill": "", "suggestion": ""}], "experience_underclaimed": [{"term": "", "found_in": ""}], "impact_gap": [{"bullet": "", "rewrite_suggestion": ""}], "timeline_flags": [{"role": "", "issue": ""}], "seniority_mismatch": [{"role": "", "issue": ""}], "keyword_density_flag": false }"""
 
 @app.post("/analyze/coherence")
-async def analyze_coherence(req: CoherenceRequestModel):
+@limiter.limit("5/minute")
+async def analyze_coherence(request: Request, req: CoherenceRequestModel, user_id: str = Depends(get_current_user)):
     logger.info(f"Handling /analyze/coherence for CV ID: {req.cv_id}")
     if not supabase:
         raise HTTPException(status_code=503, detail="Database unavailable")
@@ -381,9 +396,9 @@ async def analyze_coherence(req: CoherenceRequestModel):
         raise HTTPException(status_code=503, detail="Groq unavailable")
     
     # Fetch CV Variant
-    res = await asyncio.to_thread(lambda: supabase.table("user_cv_variants").select("cv_profile, user_id").eq("id", req.cv_id).execute())
+    res = await asyncio.to_thread(lambda: supabase.table("user_cv_variants").select("cv_profile, user_id").eq("id", req.cv_id).eq("user_id", user_id).execute())
     if not res.data:
-        raise HTTPException(status_code=404, detail="CV not found")
+        raise HTTPException(status_code=404, detail="CV not found or access denied")
         
     cv_data = res.data[0].get("cv_profile", {})
     user_id = res.data[0].get("user_id")
@@ -424,14 +439,15 @@ REDTEAM_AGENT_A_PROMPT = """You are a hostile ATS system and a skeptical senior 
 REDTEAM_AGENT_B_PROMPT = """You are an expert resume writer. Given an attack object and the original text, return: {"original": "...", "patched_version": "...", "reasoning": "..."}. The patch must be concrete, metric-driven, and ATS-friendly."""
 
 @app.post("/analyze/redteam")
-async def analyze_redteam(req: RedTeamRequestModel):
+@limiter.limit("5/minute")
+async def analyze_redteam(request: Request, req: RedTeamRequestModel, user_id: str = Depends(get_current_user)):
     logger.info(f"Handling /analyze/redteam for CV ID: {req.cv_id}")
     if not supabase or not groq_client:
         raise HTTPException(status_code=503, detail="Services unavailable")
         
-    res = await asyncio.to_thread(lambda: supabase.table("user_cv_variants").select("cv_profile, user_id").eq("id", req.cv_id).execute())
+    res = await asyncio.to_thread(lambda: supabase.table("user_cv_variants").select("cv_profile, user_id").eq("id", req.cv_id).eq("user_id", user_id).execute())
     if not res.data:
-        raise HTTPException(status_code=404, detail="CV not found")
+        raise HTTPException(status_code=404, detail="CV not found or access denied")
         
     cv_data = res.data[0].get("cv_profile", {})
     user_id = res.data[0].get("user_id")
@@ -510,7 +526,8 @@ async def analyze_redteam(req: RedTeamRequestModel):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/interview/vocal-analysis")
-async def vocal_analysis(req: VocalAnalysisRequest):
+@limiter.limit("10/minute")
+async def vocal_analysis(request: Request, req: VocalAnalysisRequest, user_id: str = Depends(get_current_user)):
     logger.info(f"Vocal analysis for session {req.session_id} turn {req.turn_index}")
     word_count = len(req.transcript_text.split())
     wpm = round((word_count / max(req.audio_duration_seconds, 1)) * 60)
@@ -567,7 +584,8 @@ Analyze their negotiation tactic and give a feedback_score (1-100).
 Return ONLY a JSON object: {"ai_response": "...", "new_offer": int, "feedback_score": int}"""
 
 @app.post("/negotiate/turn")
-async def negotiate_turn(req: NegotiationTurnRequest):
+@limiter.limit("10/minute")
+async def negotiate_turn(request: Request, req: NegotiationTurnRequest, user_id: str = Depends(get_current_user)):
     if not groq_client:
         raise HTTPException(status_code=503, detail="Services unavailable")
         
@@ -603,7 +621,8 @@ async def negotiate_turn(req: NegotiationTurnRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/analyze/skill-topology")
-async def get_skill_topology(user_id: str):
+@limiter.limit("20/minute")
+async def get_skill_topology(request: Request, user_id: str = Depends(get_current_user)):
     logger.info(f"Extracting skill topology for user: {user_id}")
     if not supabase:
         raise HTTPException(status_code=503, detail="Services unavailable")
@@ -642,7 +661,8 @@ async def get_skill_topology(user_id: str):
     return {"nodes": nodes, "links": links}
 
 @app.post("/interview/chat", response_model=InterviewChatResponse)
-async def interview_chat(req: InterviewChatRequest):
+@limiter.limit("10/minute")
+async def interview_chat(request: Request, req: InterviewChatRequest, user_id: str = Depends(get_current_user)):
     logger.info(f"Handling /interview/chat request for stage: {req.current_stage}")
     from ai.interview_agent import run_interview_turn
     try:

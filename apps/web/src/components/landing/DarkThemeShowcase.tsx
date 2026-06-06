@@ -72,7 +72,7 @@ export function DarkThemeShowcase() {
                     <p className="font-bold mb-1">TechCorp Inc.</p>
                     <ul className="list-disc pl-3 space-y-1 text-[5px] text-zinc-600">
                       <li>Increased system throughput by 30% in 3 months through the development and execution of microservices architecture.</li>
-                      <li>Improved company's online presence by 25%, driving a 40% increase in web traffic through successful SEO optimizations.</li>
+                      <li>Improved company&apos;s online presence by 25%, driving a 40% increase in web traffic through successful SEO optimizations.</li>
                       <li>Led the analysis of over 75 database queries, uncovering actionable insights that led to a 25% increase in performance.</li>
                     </ul>
                   </div>
@@ -111,7 +111,7 @@ export function DarkThemeShowcase() {
                     <p className="font-bold mb-1">TechCorp Inc.</p>
                     <ul className="list-disc pl-3 space-y-1 text-[5px] text-zinc-600">
                       <li>Increased system throughput by 30% in 3 months through the development and execution of microservices architecture.</li>
-                      <li>Improved company's online presence by 25%, driving a 40% increase in web traffic through successful SEO optimizations.</li>
+                      <li>Improved company&apos;s online presence by 25%, driving a 40% increase in web traffic through successful SEO optimizations.</li>
                       <li>Led the analysis of over 75 database queries, uncovering actionable insights that led to a 25% increase in performance.</li>
                     </ul>
                   </div>
@@ -155,7 +155,7 @@ export function DarkThemeShowcase() {
                     <p className="font-bold mb-1">TechCorp Inc.</p>
                     <ul className="list-disc pl-3 space-y-1 text-[5px] text-zinc-600">
                       <li>Increased system throughput by 30% in 3 months through the development and execution of microservices architecture.</li>
-                      <li>Improved company's online presence by 25%, driving a 40% increase in web traffic through successful SEO optimizations.</li>
+                      <li>Improved company&apos;s online presence by 25%, driving a 40% increase in web traffic through successful SEO optimizations.</li>
                       <li>Led the analysis of over 75 database queries, uncovering actionable insights that led to a 25% increase in performance.</li>
                     </ul>
                   </div>

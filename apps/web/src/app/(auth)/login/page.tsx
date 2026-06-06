@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Loader2, Briefcase } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { ParticleCanvas } from "@/components/auth/particle-canvas";
 import { StatCounter } from "@/components/auth/stat-counter";
 
@@ -113,7 +113,10 @@ export default function LoginPage() {
                 />
               </div>
               <div className="hv-field">
-                <label htmlFor="login-password">Password</label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                  <label htmlFor="login-password">Password</label>
+                  <Link href="/forgot-password" style={{ fontSize: "13px", color: "#1da074", textDecoration: "none" }}>Forgot Password?</Link>
+                </div>
                 <Input
                   id="login-password"
                   type="password"

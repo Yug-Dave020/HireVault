@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Bot, CheckCircle2, FileText, Mic } from "lucide-react";
+import { ArrowRight, Bot, CheckCircle2, Mic } from "lucide-react";
 
 export function FeatureAlternating() {
   return (

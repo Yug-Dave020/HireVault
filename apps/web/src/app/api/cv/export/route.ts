@@ -1,21 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { withApiAuthAndValidation } from "@/lib/api-middleware";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
 const WORKER_URL = process.env.WORKER_URL || "http://127.0.0.1:8000";
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
+const ExportSchema = z.object({
+  profile: z.record(z.any()),
+  design_prefs: z.record(z.any()).optional().nullable(),
+});
 
+export async function POST(req: Request) {
+  return withApiAuthAndValidation(req, ExportSchema, async (req, { token, parsedBody }) => {
     const workerRes = await fetch(`${WORKER_URL}/cv/export-pdf`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify({
-        profile: body.profile,
-        design_prefs: body.design_prefs,
+        profile: parsedBody.profile,
+        design_prefs: parsedBody.design_prefs,
       }),
     });
 
@@ -37,10 +43,5 @@ export async function POST(req: NextRequest) {
         "Access-Control-Expose-Headers": "Content-Disposition",
       },
     });
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "Internal server error in PDF export pipeline." },
-      { status: 500 }
-    );
-  }
+  });
 }

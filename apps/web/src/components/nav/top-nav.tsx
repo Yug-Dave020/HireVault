@@ -9,7 +9,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
-import { Briefcase } from "lucide-react";
 import { UserNav } from "./user-nav";
 import { NavLinks } from "./nav-links";
 

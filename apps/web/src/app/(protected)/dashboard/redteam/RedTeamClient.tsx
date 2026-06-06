@@ -36,6 +36,7 @@ export function RedTeamClient({ cvId }: { cvId: string }) {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchRedTeam();
   }, [cvId]);
@@ -128,7 +129,7 @@ export function RedTeamClient({ cvId }: { cvId: string }) {
                 {isExpanded && (
                   <div className="p-4 bg-white border-t border-black/10">
                     <p className="text-sm font-semibold text-zinc-700 mb-2">Attacker Reasoning:</p>
-                    <p className="text-sm text-zinc-600 italic mb-4">"{atk.attack_reasoning}"</p>
+                    <p className="text-sm text-zinc-600 italic mb-4">&quot;{atk.attack_reasoning}&quot;</p>
 
                     {patch ? (
                       <div className="mt-4 space-y-4">

@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Bot, CheckCircle2, LayoutTemplate, Sparkles } from "lucide-react";
-import Image from "next/image";
-
+import { ArrowRight, Bot, CheckCircle2, LayoutTemplate } from "lucide-react";
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-white pt-20 pb-16 sm:pt-32 sm:pb-24 min-h-[90vh] flex items-center">
