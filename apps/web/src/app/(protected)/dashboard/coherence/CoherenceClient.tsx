@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { DiffEditor } from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Target, Clock, Star, Zap } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export function CoherenceClient({ cvId }: { cvId: string }) {
   const [report, setReport] = useState<any>(null);
@@ -15,10 +16,16 @@ export function CoherenceClient({ cvId }: { cvId: string }) {
     setLoading(true);
     setError(null);
     try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
       const baseUrl = process.env.NEXT_PUBLIC_WORKER_WS_URL?.replace("ws://", "http://").replace("wss://", "https://") || "http://localhost:8000";
+      
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session) headers["Authorization"] = `Bearer ${session.access_token}`;
+
       const res = await fetch(`${baseUrl}/analyze/coherence`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ cv_id: cvId }),
       });
       if (!res.ok) throw new Error("Failed to fetch coherence report");

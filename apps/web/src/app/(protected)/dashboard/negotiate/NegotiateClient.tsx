@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DollarSign, MessageSquare, Send, ArrowRight } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export function NegotiateClient({ userId }: { userId: string }) {
   const [session, setSession] = useState<any>(null);
@@ -50,10 +51,16 @@ export function NegotiateClient({ userId }: { userId: string }) {
     setLoading(true);
     
     try {
+      const supabase = createClient();
+      const { data: { session: userSession } } = await supabase.auth.getSession();
       const baseUrl = process.env.NEXT_PUBLIC_WORKER_WS_URL?.replace("ws://", "http://").replace("wss://", "https://") || "http://localhost:8000";
+      
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (userSession) headers["Authorization"] = `Bearer ${userSession.access_token}`;
+
       const res = await fetch(`${baseUrl}/negotiate/turn`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           session_id: session.id,
           user_message: userMessage,
