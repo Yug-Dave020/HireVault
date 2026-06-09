@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Loader2, Network, FileText } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
 
@@ -37,8 +38,16 @@ export function SkillGraphClient({ userId }: { userId: string }) {
   useEffect(() => {
     const fetchTopology = async () => {
       try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
         const baseUrl = process.env.NEXT_PUBLIC_WORKER_WS_URL?.replace("ws://", "http://").replace("wss://", "https://") || "http://localhost:8000";
-        const res = await fetch(`${baseUrl}/analyze/skill-topology?user_id=${userId}`);
+        
+        const headers: Record<string, string> = {};
+        if (session) headers["Authorization"] = `Bearer ${session.access_token}`;
+
+        const res = await fetch(`${baseUrl}/analyze/skill-topology?user_id=${userId}`, {
+          headers
+        });
         const data = await res.json();
         
         // Enhance node labels to show variant connections

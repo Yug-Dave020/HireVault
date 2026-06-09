@@ -186,16 +186,20 @@ export default function InterviewChatPage({ params }: { params: { id: string } }
            
            if (audioDurationRef.current > 0) {
              const httpBaseUrl = baseUrl.replace("ws://", "http://").replace("wss://", "https://");
-             fetch(`${httpBaseUrl}/interview/vocal-analysis`, {
-               method: "POST",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({
-                 transcript_text: data.text,
-                 audio_duration_seconds: audioDurationRef.current || 1.0,
-                 session_id: id,
-                 turn_index: 0
+             supabase.auth.getSession().then(({ data: { session: authSession } }) => {
+               const headers: Record<string, string> = { "Content-Type": "application/json" };
+               if (authSession) headers["Authorization"] = `Bearer ${authSession.access_token}`;
+
+               fetch(`${httpBaseUrl}/interview/vocal-analysis`, {
+                 method: "POST",
+                 headers,
+                 body: JSON.stringify({
+                   transcript_text: data.text,
+                   audio_duration_seconds: audioDurationRef.current || 1.0,
+                   session_id: id,
+                   turn_index: 0
+                 })
                })
-             })
              .then(res => res.json())
              .then(metrics => {
                setVocalMetrics(metrics);
@@ -212,6 +216,7 @@ export default function InterviewChatPage({ params }: { params: { id: string } }
                    };
                  }
                  return newMsgs;
+               });
                });
              })
              .catch(console.error);
