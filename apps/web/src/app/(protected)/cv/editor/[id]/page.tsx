@@ -1294,6 +1294,104 @@ export default function CVEditorPage() {
                 )}
                 <div className="absolute bottom-2 left-0 w-full text-center text-xs font-bold text-slate-800 bg-white/80 backdrop-blur-sm py-1 border-t border-slate-100">Tech Professional</div>
               </button>
+
+              {/* Template 4: Elegant Corporate (Dark Blue Header) */}
+              <button 
+                onClick={() => updateDesign("theme", "elegant_corporate")}
+                className={`flex-shrink-0 w-[180px] h-[260px] bg-white rounded-sm p-3 shadow-md snap-center transform hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden border-2 text-left ${profile?.design_prefs?.theme === "elegant_corporate" ? "border-[#1e3a8a] ring-2 ring-[#1e3a8a]/20" : "border-slate-200"}`}
+              >
+                <div className="flex flex-col h-full text-[4px] leading-[1.4] text-zinc-800">
+                  <div className="bg-[#1e3a8a] p-2 -m-3 mb-2 text-white">
+                    <h1 className="text-[9px] font-bold text-white mb-0.5">Yug Dave</h1>
+                    <p className="text-[#e2e8f0]">New York, NY • yugdave@email.com</p>
+                  </div>
+                  
+                  <p className="mb-2 text-zinc-600 mt-1">
+                    7+ years of software engineering experience, driving product growth and engagement...
+                  </p>
+                  
+                  <h2 className="font-bold text-[5px] text-[#1e3a8a] uppercase mb-1 border-b border-[#1e3a8a] pb-0.5">Work Experience</h2>
+                  
+                  <div className="mb-2">
+                    <h3 className="font-bold text-[#1e3a8a]">Senior Software Engineer • New York</h3>
+                    <p className="font-bold mb-0.5">TechCorp Inc.</p>
+                    <ul className="list-disc pl-2 space-y-0.5 text-zinc-600">
+                      <li>Increased system throughput by 30% in 3 months...</li>
+                    </ul>
+                  </div>
+                </div>
+                {profile?.design_prefs?.theme === "elegant_corporate" && (
+                  <div className="absolute top-2 right-2 bg-[#1e3a8a] text-white text-[8px] font-bold px-1.5 py-0.5 rounded">Selected</div>
+                )}
+                <div className="absolute bottom-2 left-0 w-full text-center text-xs font-bold text-slate-800 bg-white/80 backdrop-blur-sm py-1 border-t border-slate-100">Elegant Corporate</div>
+              </button>
+
+              {/* Template 5: Creative Portfolio (Gold/Beige Right Align) */}
+              <button 
+                onClick={() => updateDesign("theme", "creative_portfolio")}
+                className={`flex-shrink-0 w-[180px] h-[260px] bg-white rounded-sm p-3 shadow-md snap-center transform hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden border-2 text-left ${profile?.design_prefs?.theme === "creative_portfolio" ? "border-[#b48600] ring-2 ring-[#b48600]/20" : "border-slate-200"}`}
+              >
+                <div className="flex flex-col h-full text-[4px] leading-[1.4] text-zinc-800 font-serif">
+                  <div className="text-right border-r-2 border-[#b48600] pr-1.5 mb-2">
+                    <h1 className="text-[9px] text-zinc-900 mb-0.5 tracking-wider">Yug Dave</h1>
+                    <p className="text-zinc-500">New York, NY • yugdave@email.com</p>
+                  </div>
+                  
+                  <p className="mb-2 text-zinc-600 text-right font-sans">
+                    7+ years of software engineering experience, driving product growth and engagement...
+                  </p>
+                  
+                  <h2 className="italic text-[5px] text-[#b48600] mb-1 border-b border-slate-100 pb-0.5 text-right">Work Experience</h2>
+                  
+                  <div className="mb-2 font-sans">
+                    <div className="flex justify-between items-center mb-0.5">
+                      <h3 className="font-bold">Senior Software Engineer</h3>
+                      <span className="text-[#b48600] font-bold text-[3px]">2019 - Present</span>
+                    </div>
+                    <p className="font-bold mb-0.5">TechCorp Inc.</p>
+                    <ul className="list-disc pl-2 space-y-0.5 text-zinc-600">
+                      <li>Increased system throughput by 30% in 3 months...</li>
+                    </ul>
+                  </div>
+                </div>
+                {profile?.design_prefs?.theme === "creative_portfolio" && (
+                  <div className="absolute top-2 right-2 bg-[#b48600] text-white text-[8px] font-bold px-1.5 py-0.5 rounded">Selected</div>
+                )}
+                <div className="absolute bottom-2 left-0 w-full text-center text-xs font-bold text-slate-800 bg-white/80 backdrop-blur-sm py-1 border-t border-slate-100">Creative Portfolio</div>
+              </button>
+
+              {/* Template 6: Bold Impact (Emerald Heavy Header) */}
+              <button 
+                onClick={() => updateDesign("theme", "bold_impact")}
+                className={`flex-shrink-0 w-[180px] h-[260px] bg-white rounded-sm p-3 shadow-md snap-center transform hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden border-2 text-left ${profile?.design_prefs?.theme === "bold_impact" ? "border-[#10b981] ring-2 ring-[#10b981]/20" : "border-slate-200"}`}
+              >
+                <div className="flex flex-col h-full text-[4px] leading-[1.4] text-zinc-800 font-sans">
+                  <div className="mb-2 border-l-[3px] border-[#10b981] pl-1.5">
+                    <h1 className="text-[10px] font-black text-zinc-900 mb-0.5 tracking-tighter">YUG DAVE</h1>
+                    <p className="text-zinc-500 font-bold">New York, NY • yugdave@email.com</p>
+                  </div>
+                  
+                  <p className="mb-2 text-zinc-600">
+                    7+ years of software engineering experience, driving product growth and engagement...
+                  </p>
+                  
+                  <div className="mb-1">
+                    <h2 className="font-bold text-[4px] text-white bg-zinc-900 uppercase px-1 py-0.5 inline-block">Work Experience</h2>
+                  </div>
+                  
+                  <div className="mb-2">
+                    <h3 className="font-black uppercase text-zinc-800">Senior Software Engineer</h3>
+                    <p className="font-bold text-[#10b981] mb-0.5">TechCorp Inc.</p>
+                    <ul className="list-disc pl-2 space-y-0.5 text-zinc-600">
+                      <li>Increased system throughput by 30% in 3 months...</li>
+                    </ul>
+                  </div>
+                </div>
+                {profile?.design_prefs?.theme === "bold_impact" && (
+                  <div className="absolute top-2 right-2 bg-[#10b981] text-white text-[8px] font-bold px-1.5 py-0.5 rounded">Selected</div>
+                )}
+                <div className="absolute bottom-2 left-0 w-full text-center text-xs font-bold text-slate-800 bg-white/80 backdrop-blur-sm py-1 border-t border-slate-100">Bold Impact</div>
+              </button>
             </div>
 
             <div className="space-y-2 pt-2 border-t border-slate-100">
@@ -1314,21 +1412,25 @@ export default function CVEditorPage() {
             </div>
           </div>
 
-          <div className="flex-1 bg-white rounded-3xl p-6 sm:p-8 shadow-inner border border-slate-200/80 space-y-5 font-sans relative overflow-hidden" style={{
-            fontFamily: profile?.design_prefs?.theme === "classic_executive" ? "Georgia, serif" : profile?.design_prefs?.theme === "tech_professional" ? "Arial, sans-serif" : "Inter, sans-serif",
-            borderTop: profile?.design_prefs?.theme === "classic_executive" ? `6px solid ${profile?.design_prefs?.accent_color || "#1d9e75"}` : "none"
+          <div className="flex-1 bg-white rounded-3xl p-6 sm:p-8 shadow-inner border border-slate-200/80 space-y-5 relative overflow-hidden" style={{
+            fontFamily: (profile?.design_prefs?.theme === "classic_executive" || profile?.design_prefs?.theme === "creative_portfolio") ? "Georgia, serif" : profile?.design_prefs?.theme === "tech_professional" ? "Arial, sans-serif" : "Inter, sans-serif",
+            borderTop: profile?.design_prefs?.theme === "classic_executive" ? `6px solid ${profile?.design_prefs?.accent_color || "#1d9e75"}` : "none",
+            backgroundColor: profile?.design_prefs?.theme === "elegant_corporate" ? "#fafafa" : "#ffffff",
           }}>
             <div className="absolute top-2 right-2 bg-slate-200 text-slate-500 font-bold text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider">
               Preview Card
             </div>
 
-            <div className={`space-y-1 pb-3 ${profile?.design_prefs?.theme === "tech_professional" ? "text-center border-b border-black" : "text-left"}`}>
-              <h2 className="text-xl font-bold" style={{
-                color: profile?.design_prefs?.theme === "classic_executive" ? (profile?.design_prefs?.accent_color || "#1d9e75") : profile?.design_prefs?.theme === "tech_professional" ? "#111" : (profile?.design_prefs?.accent_color || "#1d9e75")
+            <div className={`space-y-1 pb-3 ${profile?.design_prefs?.theme === "tech_professional" ? "text-center border-b border-black" : profile?.design_prefs?.theme === "elegant_corporate" ? "bg-[#1e3a8a] text-white -mx-8 -mt-8 p-8 mb-4" : profile?.design_prefs?.theme === "creative_portfolio" ? "text-right border-r-4 pr-4" : profile?.design_prefs?.theme === "bold_impact" ? "border-l-8 pl-4" : "text-left"}`} style={{
+              borderColor: profile?.design_prefs?.theme === "creative_portfolio" || profile?.design_prefs?.theme === "bold_impact" ? (profile?.design_prefs?.accent_color || "#1d9e75") : "inherit",
+              backgroundColor: profile?.design_prefs?.theme === "elegant_corporate" ? (profile?.design_prefs?.accent_color || "#1e3a8a") : "transparent"
+            }}>
+              <h2 className={`text-xl ${profile?.design_prefs?.theme === "bold_impact" ? "font-black tracking-tighter text-3xl" : "font-bold"}`} style={{
+                color: profile?.design_prefs?.theme === "elegant_corporate" ? "#ffffff" : profile?.design_prefs?.theme === "classic_executive" ? (profile?.design_prefs?.accent_color || "#1d9e75") : profile?.design_prefs?.theme === "tech_professional" || profile?.design_prefs?.theme === "bold_impact" ? "#111" : (profile?.design_prefs?.accent_color || "#1d9e75")
               }}>
                 {profile.personal.full_name || "YOUR NAME"}
               </h2>
-              <div className={`text-[10px] text-slate-500 flex flex-wrap gap-2 ${profile?.design_prefs?.theme === "tech_professional" ? "justify-center font-mono" : "justify-start"}`}>
+              <div className={`text-[10px] flex flex-wrap gap-2 ${profile?.design_prefs?.theme === "tech_professional" ? "justify-center font-mono text-slate-500" : profile?.design_prefs?.theme === "elegant_corporate" ? "justify-start text-white/80" : profile?.design_prefs?.theme === "creative_portfolio" ? "justify-end text-slate-500" : "justify-start text-slate-500"}`}>
                 <span>{profile.personal.email || "email@domain.com"}</span>
                 <span>|</span>
                 <span>{profile.personal.phone || "Phone number"}</span>
@@ -1339,9 +1441,9 @@ export default function CVEditorPage() {
 
             {profile.personal.summary && (
               <div className="space-y-1 pt-1">
-                <h4 className="text-[11px] font-bold uppercase tracking-wider pb-0.5 border-b-2" style={{
-                  borderColor: profile?.design_prefs?.theme === "tech_professional" ? "#111" : (profile?.design_prefs?.accent_color || "#1d9e75"),
-                  color: profile?.design_prefs?.theme === "classic_executive" ? (profile?.design_prefs?.accent_color || "#1d9e75") : "#111",
+                <h4 className={`text-[11px] uppercase tracking-wider pb-0.5 ${profile?.design_prefs?.theme === "bold_impact" ? "font-bold text-white bg-zinc-900 inline-block px-2 py-1" : profile?.design_prefs?.theme === "creative_portfolio" ? "font-serif italic text-right border-b border-slate-200" : "font-bold border-b-2"}`} style={{
+                  borderColor: profile?.design_prefs?.theme === "tech_professional" ? "#111" : profile?.design_prefs?.theme === "creative_portfolio" ? "#e2e8f0" : (profile?.design_prefs?.accent_color || "#1d9e75"),
+                  color: profile?.design_prefs?.theme === "classic_executive" || profile?.design_prefs?.theme === "elegant_corporate" || profile?.design_prefs?.theme === "creative_portfolio" ? (profile?.design_prefs?.accent_color || "#1d9e75") : profile?.design_prefs?.theme === "bold_impact" ? "#ffffff" : "#111",
                 }}>
                   Professional Summary
                 </h4>
@@ -1352,9 +1454,9 @@ export default function CVEditorPage() {
             )}
 
             <div className="space-y-1 pt-1">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider pb-0.5 border-b-2" style={{
-                borderColor: profile?.design_prefs?.theme === "tech_professional" ? "#111" : (profile?.design_prefs?.accent_color || "#1d9e75"),
-                color: profile?.design_prefs?.theme === "classic_executive" ? (profile?.design_prefs?.accent_color || "#1d9e75") : "#111",
+              <h4 className={`text-[11px] uppercase tracking-wider pb-0.5 ${profile?.design_prefs?.theme === "bold_impact" ? "font-bold text-white bg-zinc-900 inline-block px-2 py-1 mb-2" : profile?.design_prefs?.theme === "creative_portfolio" ? "font-serif italic text-right border-b border-slate-200" : "font-bold border-b-2"}`} style={{
+                borderColor: profile?.design_prefs?.theme === "tech_professional" ? "#111" : profile?.design_prefs?.theme === "creative_portfolio" ? "#e2e8f0" : (profile?.design_prefs?.accent_color || "#1d9e75"),
+                color: profile?.design_prefs?.theme === "classic_executive" || profile?.design_prefs?.theme === "elegant_corporate" || profile?.design_prefs?.theme === "creative_portfolio" ? (profile?.design_prefs?.accent_color || "#1d9e75") : profile?.design_prefs?.theme === "bold_impact" ? "#ffffff" : "#111",
               }}>
                 Work Experience
               </h4>
@@ -1381,9 +1483,9 @@ export default function CVEditorPage() {
             </div>
 
             <div className="space-y-1 pt-1">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider pb-0.5 border-b-2" style={{
-                borderColor: profile?.design_prefs?.theme === "tech_professional" ? "#111" : (profile?.design_prefs?.accent_color || "#1d9e75"),
-                color: profile?.design_prefs?.theme === "classic_executive" ? (profile?.design_prefs?.accent_color || "#1d9e75") : "#111",
+              <h4 className={`text-[11px] uppercase tracking-wider pb-0.5 ${profile?.design_prefs?.theme === "bold_impact" ? "font-bold text-white bg-zinc-900 inline-block px-2 py-1 mb-2" : profile?.design_prefs?.theme === "creative_portfolio" ? "font-serif italic text-right border-b border-slate-200" : "font-bold border-b-2"}`} style={{
+                borderColor: profile?.design_prefs?.theme === "tech_professional" ? "#111" : profile?.design_prefs?.theme === "creative_portfolio" ? "#e2e8f0" : (profile?.design_prefs?.accent_color || "#1d9e75"),
+                color: profile?.design_prefs?.theme === "classic_executive" || profile?.design_prefs?.theme === "elegant_corporate" || profile?.design_prefs?.theme === "creative_portfolio" ? (profile?.design_prefs?.accent_color || "#1d9e75") : profile?.design_prefs?.theme === "bold_impact" ? "#ffffff" : "#111",
               }}>
                 Skills & Spoken Languages
               </h4>

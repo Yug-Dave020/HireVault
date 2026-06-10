@@ -143,6 +143,41 @@ THEME_CONFIGS = {
         .item-date, .contact-info, .skills-label { font-family: 'Courier New', Courier, monospace; font-size: 9pt; }
         .section-title { border-bottom: 1px solid #111; color: #111; }
         """
+    },
+    "elegant_corporate": {
+        "font_heading": "'Helvetica Neue', Arial, sans-serif",
+        "font_body": "'Helvetica Neue', Arial, sans-serif",
+        "accent_color": "#1e3a8a",
+        "extra_css": """
+        .header { text-align: left; background-color: var(--accent); padding: 25px; margin-left: -18mm; margin-right: -18mm; margin-top: -18mm; margin-bottom: 1.5rem; color: white; }
+        .header h1 { color: white; margin-bottom: 8px; }
+        .contact-info { color: #e2e8f0; }
+        .contact-info a { color: #e2e8f0; text-decoration: none; }
+        .section-title { font-weight: 800; color: var(--accent); border-bottom: 2px solid var(--accent); }
+        .item-title { color: var(--accent); }
+        """
+    },
+    "creative_portfolio": {
+        "font_heading": "Georgia, serif",
+        "font_body": "'Helvetica Neue', Arial, sans-serif",
+        "accent_color": "#b48600",
+        "extra_css": """
+        .header { text-align: right; border-right: 4px solid var(--accent); padding-right: 15px; margin-bottom: 1.5rem; }
+        .header h1 { color: #111; font-weight: normal; letter-spacing: 0.1em; }
+        .section-title { font-style: italic; color: var(--accent); border-bottom: 1px solid #eee; text-align: right; }
+        .item-date { color: var(--accent); font-weight: bold; }
+        """
+    },
+    "bold_impact": {
+        "font_heading": "'Arial Black', Impact, sans-serif",
+        "font_body": "'Helvetica Neue', Arial, sans-serif",
+        "accent_color": "#10b981",
+        "extra_css": """
+        .header { text-align: left; margin-bottom: 1.5rem; }
+        .header h1 { color: #111; font-size: 26pt; border-left: 8px solid var(--accent); padding-left: 10px; }
+        .section-title { background-color: #111; color: white; padding: 4px 8px; border-bottom: none; display: inline-block; }
+        .item-title { font-weight: 900; text-transform: uppercase; }
+        """
     }
 }
 

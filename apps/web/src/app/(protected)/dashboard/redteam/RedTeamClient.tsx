@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DiffEditor } from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, ShieldAlert, ChevronDown, ChevronUp, CheckCircle2 } from "lucide-react";
@@ -12,7 +12,7 @@ export function RedTeamClient({ cvId }: { cvId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
 
-  const fetchRedTeam = async () => {
+  const fetchRedTeam = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -41,12 +41,11 @@ export function RedTeamClient({ cvId }: { cvId: string }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [cvId]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchRedTeam();
-  }, [cvId]);
+  }, [fetchRedTeam]);
 
   const toggleRow = (index: number) => {
     setExpandedRows(prev => ({ ...prev, [index]: !prev[index] }));

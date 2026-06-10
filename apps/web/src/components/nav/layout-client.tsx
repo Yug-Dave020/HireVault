@@ -21,8 +21,8 @@ export function LayoutClient({ displayName, email, children }: LayoutClientProps
         onToggle={() => setIsCollapsed(!isCollapsed)}
       />
 
-      <div className="flex-grow flex flex-col p-6 h-full overflow-hidden transition-all duration-300">
-        <div className="flex-1 flex flex-col bg-white rounded-[24px] shadow-sm border border-zinc-200/50 overflow-hidden">
+      <div className="flex-grow flex flex-col h-full overflow-hidden transition-all duration-300 bg-white">
+        <div className="flex-1 flex flex-col overflow-y-auto">
           {children}
         </div>
       </div>

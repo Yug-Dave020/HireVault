@@ -99,6 +99,24 @@ export default async function DashboardPage() {
     ? cvProfile.design_prefs.theme.replace("_", " ").replace(/\b\w/g, (c: string) => c.toUpperCase())
     : "Not Selected";
 
+  // Safely check for has_completed_tour to prevent crashing if migration isn't run
+  let hasCompletedTour = false;
+  const { data: tourData, error: tourError } = await supabase
+    .from("user_profiles")
+    .select("has_completed_tour")
+    .eq("id", user.id)
+    .maybeSingle();
+  
+  if (!tourError && tourData) {
+    hasCompletedTour = tourData.has_completed_tour || false;
+  }
+
+  const { count: interviewCount } = await supabase
+    .from("interview_sessions")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id);
+  const hasInterview = (interviewCount || 0) > 0;
+
   return (
     <DashboardClient
       profile={profile}
@@ -108,11 +126,13 @@ export default async function DashboardPage() {
       locations={locations}
       skills={skills}
       hasCV={hasCV}
+      hasInterview={hasInterview}
       marketAlignmentIndex={marketAlignmentIndex}
       totalVariants={totalVariants}
       activePublicLinks={activePublicLinks}
       suggestedGaps={suggestedGaps}
       cvTheme={cvTheme}
+      hasCompletedTour={hasCompletedTour}
     />
   );
 }
