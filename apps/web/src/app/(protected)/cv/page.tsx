@@ -25,7 +25,6 @@ export default function CVPage() {
   const [masterScore, setMasterScore] = useState<number>(0);
   const [variantsList, setVariantsList] = useState<any[]>([]);
 
-  // Metadata Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"scratch" | "upload" | "master" | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -353,8 +352,8 @@ export default function CVPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#f4f5f6] overflow-y-auto">
-      <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-12 flex flex-col justify-start space-y-8">
+    <div className="flex-1 flex flex-col bg-[#f8f9fa] overflow-y-auto">
+      <main className="flex-1 max-w-[1200px] mx-auto w-full px-6 py-10 flex flex-col justify-start space-y-8">
         <div className="text-left space-y-2">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
             Design Your ATS-Optimized CV
@@ -372,7 +371,7 @@ export default function CVPage() {
         )}
 
         {parsing || loadingDashboard ? (
-          <div className="bg-white rounded-3xl p-12 border border-zinc-200/60 flex flex-col items-center justify-center space-y-4 shadow-sm">
+          <div className="bg-white rounded-[20px] p-12 border border-zinc-200/80 flex flex-col items-center justify-center space-y-4 shadow-sm">
             <Loader2 className="h-8 w-8 animate-spin text-zinc-700" />
             <p className="text-zinc-800 font-bold text-base">Processing Canvas</p>
             <p className="text-zinc-400 text-xs">{parsing ? uploadProgress : "Running dynamic deep analysis matches..."}</p>
@@ -382,7 +381,7 @@ export default function CVPage() {
 
             <div className="space-y-6">
               {masterProfile ? (
-                <div className="bg-white border border-zinc-200/60 rounded-2xl p-6 shadow-sm flex flex-col space-y-4">
+                <div className="bg-white border border-zinc-200/80 rounded-[20px] p-6 shadow-sm flex flex-col space-y-4">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase text-indigo-600 tracking-wider">
                     <FileText className="h-4 w-4" />
                     <span>Master Profile Foundation</span>
@@ -440,7 +439,7 @@ export default function CVPage() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white border border-zinc-200/60 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center py-12 text-center">
+                <div className="bg-white border border-zinc-200/80 rounded-[20px] p-6 shadow-sm flex flex-col items-center justify-center py-12 text-center">
                   <AlertTriangle className="h-8 w-8 text-amber-500 mb-3" />
                   <h3 className="font-bold text-zinc-800 text-sm">No Master Profile Found</h3>
                   <p className="text-xs text-zinc-500 mt-2 max-w-xs mb-4">You don&apos;t have a master profile yet. Start by uploading an existing resume or building from scratch.</p>
@@ -468,7 +467,7 @@ export default function CVPage() {
                   onDragOver={handleDrag}
                   onDragLeave={handleDrag}
                   onDrop={handleDrop}
-                  className={`group bg-white rounded-2xl p-6 border-2 border-dashed transition-all duration-300 flex flex-col md:flex-row items-center gap-6 ${dragActive
+                  className={`group bg-white rounded-[20px] p-6 border-2 border-dashed transition-all duration-300 flex flex-col md:flex-row items-center gap-6 ${dragActive
                     ? "border-emerald-500 bg-emerald-50/10"
                     : "border-zinc-200 hover:border-emerald-500/50 hover:shadow-sm"
                     }`}
@@ -498,7 +497,7 @@ export default function CVPage() {
                   </div>
                 </div>
 
-                <div className="group bg-white rounded-2xl p-6 border border-zinc-200 hover:border-indigo-500/30 hover:shadow-sm transition-all duration-300 flex flex-col md:flex-row items-center gap-6">
+                <div className="group bg-white rounded-[20px] p-6 border border-zinc-200/80 hover:border-indigo-500/30 shadow-sm transition-all duration-300 flex flex-col md:flex-row items-center gap-6">
                   <div className="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
                     <Sparkles className="h-5 w-5 text-indigo-600" />
                   </div>
@@ -526,15 +525,15 @@ export default function CVPage() {
               </div>
 
               {variantsList.length === 0 ? (
-                <div className="bg-white border border-zinc-200/50 rounded-2xl p-8 text-center flex flex-col items-center">
+                <div className="bg-white border border-zinc-200/80 rounded-[20px] shadow-sm p-8 text-center flex flex-col items-center">
                   <Settings2 className="h-8 w-8 text-zinc-300 mb-3" />
                   <p className="text-zinc-500 text-sm font-medium">No Tailored Variants Found</p>
                   <p className="text-zinc-400 text-xs mt-1 max-w-xs">Generate custom resumes targeted for specific roles and companies.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-4 max-h-[650px] overflow-y-auto pr-2 pb-2">
                   {variantsList.map((variant) => (
-                    <div key={variant.id} className="bg-white border border-zinc-200/60 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between items-start gap-4">
+                    <div key={variant.id} className="bg-white border border-zinc-200/80 rounded-[20px] p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between items-start gap-4">
                       <div className="w-full flex items-start justify-between">
                         <div>
                           <div className="flex items-center gap-2">
