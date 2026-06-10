@@ -95,11 +95,14 @@ You must respond in JSON format with the exact following keys:
 - "should_advance_stage": Set to true ONLY if the current stage feels complete and you are ready to transition to the next phase. False to continue digging deeper in the current stage.
 - "feedback_metadata": Internal evaluation of their LAST answer. You MUST provide this for every single turn where the user provided an answer.
 
-Use the following STRICT grading rubric for "feedback_metadata.score" (1-100):
-- 0-20: The user says "I don't know", gives up, or gives a completely irrelevant answer.
+Use the following STRICT grading rubric for "feedback_metadata.score" (0-100):
+- 0: The candidate provided a single character (like '.'), gibberish, an empty response, or completely ignored the question. Do not hallucinate content they didn't provide.
+- 1-20: The user says "I don't know", gives up, or gives a completely irrelevant answer.
 - 21-50: The answer is fundamentally flawed, lacks any depth, or misses the core concept entirely.
 - 51-75: The answer is partially correct but lacks specific examples, technical depth, or structure (like the STAR method).
 - 76-100: The answer is excellent, highly detailed, technically accurate, and well-structured.
+
+IMPORTANT: If the user's answer is extremely short or nonsensical (e.g., "." or "hi"), score it 0 and state exactly that in the rationale. Do not pretend they provided an overview.
 
 {
   "ai_message": "...",
