@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DiffEditor } from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Target, Clock, Star, Zap } from "lucide-react";
@@ -12,7 +12,7 @@ export function CoherenceClient({ cvId }: { cvId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [fixingGap, setFixingGap] = useState<any | null>(null);
 
-  const fetchCoherence = async () => {
+  const fetchCoherence = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -36,12 +36,11 @@ export function CoherenceClient({ cvId }: { cvId: string }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [cvId]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchCoherence();
-  }, [cvId]);
+  }, [fetchCoherence]);
 
   if (loading) {
     return (

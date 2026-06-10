@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import {
-  MapPin, Briefcase, ArrowRight, Video,
-  FileText, TrendingUp, BarChart3, AlertCircle, CheckCircle, Loader2, DollarSign, Sparkles,
+  MapPin, Briefcase,
+  FileText, BarChart3, CheckCircle, Loader2, DollarSign, Sparkles,
   Network
 } from "lucide-react";
 import Link from "next/link";
@@ -193,7 +193,7 @@ export function DashboardClient({
             </div>
             {hasCV && totalVariants > 0 && (
               <div className="text-center pt-2">
-                <span className="text-[13px] font-medium text-zinc-500">You're making great progress! 🎉</span>
+                <span className="text-[13px] font-medium text-zinc-500">You&apos;re making great progress! 🎉</span>
               </div>
             )}
           </div>
