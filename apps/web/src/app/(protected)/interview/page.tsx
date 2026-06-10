@@ -87,8 +87,8 @@ export default function InterviewPrepPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-8 bg-zinc-50/30">
-      <div className="w-full max-w-lg space-y-8 bg-white p-8 sm:p-10 rounded-2xl border border-zinc-200/80 shadow-sm">
+    <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-10 bg-[#f8f9fa] overflow-y-auto">
+      <div className="w-full max-w-lg space-y-8 bg-white p-8 sm:p-10 rounded-[20px] border border-zinc-200/80 shadow-sm">
         
         <div className="text-center space-y-2">
           <div className="mx-auto h-12 w-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 mb-4">

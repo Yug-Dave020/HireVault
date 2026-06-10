@@ -124,7 +124,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-zinc-50/20">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#f8f9fa]">
         <Loader2 className="h-7 w-7 animate-spin text-zinc-700 mb-2" />
         <p className="text-zinc-500 text-xs font-semibold">Loading profile preferences...</p>
       </div>
@@ -132,8 +132,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white overflow-y-auto">
-      <main className="mx-auto max-w-2xl w-full px-6 sm:px-8 py-8 space-y-6">
+    <div className="flex-1 flex flex-col bg-[#f8f9fa] overflow-y-auto">
+      <main className="mx-auto max-w-3xl w-full px-6 py-10">
+        <div className="bg-white p-8 sm:p-10 rounded-[20px] border border-zinc-200/80 shadow-sm space-y-6">
 
         <div className="space-y-1 border-b border-zinc-100 pb-4 flex items-center justify-between">
           <div className="space-y-1">
@@ -280,6 +281,7 @@ export default function ProfilePage() {
 
         </form>
 
+        </div>
       </main>
     </div>
   );
