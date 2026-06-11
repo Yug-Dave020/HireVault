@@ -1,10 +1,13 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, UploadFile, File, Response, HTTPException, WebSocket, WebSocketDisconnect, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import asyncio
 import tempfile
 from supabase import create_client, Client
-import os
 import logging
 import json
 import re
@@ -17,6 +20,7 @@ from typing import Optional, List, Dict, Any
 from ai.cv_generator import empty_profile
 from ai.resume_parser import parse_resume_text
 from export.pdf_export import export_pdf
+from routers import talentlens
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,6 +38,8 @@ app = FastAPI(title="HireVault Worker", version="0.1.0")
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+app.include_router(talentlens.router, prefix="/api/talentlens")
 
 app.add_middleware(
     CORSMiddleware,
@@ -164,8 +170,8 @@ async def cv_parse(request: Request, file: UploadFile = File(...), user_id: str 
     logger.info(f"Handling /cv/parse request for file: {file.filename}")
     filename = file.filename.lower()
     
-    if not (filename.endswith(".pdf") or filename.endswith(".txt")):
-        raise HTTPException(status_code=400, detail="Only PDF and TXT files are supported.")
+    if not (filename.endswith(".pdf") or filename.endswith(".txt") or filename.endswith(".docx") or filename.endswith(".doc")):
+        raise HTTPException(status_code=400, detail="Only PDF, DOCX, and TXT files are supported.")
         
     try:
         content = await file.read()
@@ -179,6 +185,11 @@ async def cv_parse(request: Request, file: UploadFile = File(...), user_id: str 
                 page_text = page.extract_text()
                 if page_text:
                     extracted_text += page_text + "\n"
+        elif filename.endswith(".docx"):
+            logger.info("Extracting text from DOCX file.")
+            from docx import Document
+            doc = Document(BytesIO(content))
+            extracted_text = "\n".join(paragraph.text for paragraph in doc.paragraphs)
         else:
             logger.info("Reading text from TXT file.")
             extracted_text = content.decode("utf-8", errors="ignore")
