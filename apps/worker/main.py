@@ -20,7 +20,7 @@ from typing import Optional, List, Dict, Any
 from ai.cv_generator import empty_profile
 from ai.resume_parser import parse_resume_text
 from export.pdf_export import export_pdf
-from routers import talentlens
+from routers import talentlens, connecthub
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,6 +40,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(talentlens.router, prefix="/api/talentlens")
+app.include_router(connecthub.router)
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { FileText, ChevronRight, User, Users } from "lucide-react";
+import { ChevronRight, Users } from "lucide-react";
 import CreateJobModal from "./CreateJobModal";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ export default async function HiringDashboard() {
   }
 
   // Fetch job postings
-  const { data: jobs, error } = await supabase
+  const { data: jobs } = await supabase
     .from("job_postings")
     .select(`
       id, 

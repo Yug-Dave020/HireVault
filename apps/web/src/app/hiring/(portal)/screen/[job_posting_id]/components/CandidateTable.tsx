@@ -5,7 +5,7 @@ import { CVSubmission } from "@shared/types/talentlens";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { Search, ChevronDown, UserRound } from "lucide-react";
+import { Search, UserRound } from "lucide-react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
 

@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -38,7 +37,7 @@ export default function CreateJobModal() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
 
-      const { data, error: dbError } = await supabase
+      const { error: dbError } = await supabase
         .from("job_postings")
         .insert({
           title: title.trim(),

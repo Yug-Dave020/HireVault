@@ -18,6 +18,7 @@ export function LandingNav({ user }: { user: User | null }) {
           <Link href="#testimonials" className="hover:text-zinc-900 transition-colors">Testimonials</Link>
           <Link href="#templates" className="hover:text-zinc-900 transition-colors">Templates</Link>
           <Link href="#features" className="hover:text-zinc-900 transition-colors">Features</Link>
+          <Link href="/hiring/login" className="hover:text-zinc-900 transition-colors font-semibold text-[#1da074]">For Employers</Link>
         </nav>
 
         <div className="flex items-center gap-3">

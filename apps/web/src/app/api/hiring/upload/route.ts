@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         ...(contentType ? { "content-type": contentType } : {})
       },
       body: request.body,
-      // @ts-ignore
+      // @ts-expect-error missing duplex option in types
       duplex: "half"
     });
 

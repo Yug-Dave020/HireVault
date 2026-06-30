@@ -55,6 +55,7 @@ export default function ScreenPage({ params }: { params: { job_posting_id: strin
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.job_posting_id]);
 
   const handleRerank = async (newWeights: any, newJdText: string) => {

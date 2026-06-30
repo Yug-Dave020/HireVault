@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { CVSubmission } from "@shared/types/talentlens";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Loader2, Mail, Sparkles, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -51,7 +50,7 @@ export default function ComposeOutreach({ candidate, anonymized, onUpdateStatus 
       });
       if (error) throw error;
       toast.success("Saved as draft");
-    } catch (err: any) {
+    } catch {
       toast.error("Failed to save draft");
     } finally {
       setSaving(false);
@@ -65,7 +64,7 @@ export default function ComposeOutreach({ candidate, anonymized, onUpdateStatus 
       if (error) throw error;
       onUpdateStatus("contacted");
       toast.success("Candidate marked as contacted");
-    } catch (err: any) {
+    } catch {
       toast.error("Failed to update status");
     } finally {
       setSaving(false);

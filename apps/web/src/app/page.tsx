@@ -6,6 +6,7 @@ import { FeatureAlternating } from "@/components/landing/FeatureAlternating";
 import { DarkThemeShowcase } from "@/components/landing/DarkThemeShowcase";
 import { FeatureGrid } from "@/components/landing/FeatureGrid";
 import { FinalCtaSection } from "@/components/landing/FinalCtaSection";
+import { HiringManagerSection } from "@/components/landing/HiringManagerSection";
 import { Footer } from "@/components/landing/Footer";
 
 export default async function RootPage() {
@@ -22,6 +23,7 @@ export default async function RootPage() {
         <FeatureAlternating />
         <DarkThemeShowcase />
         <FeatureGrid />
+        <HiringManagerSection />
         <FinalCtaSection />
       </main>
 
