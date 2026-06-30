@@ -46,4 +46,4 @@ def test_cv_parse_invalid_file():
         files={"file": ("test.png", b"fake image content", "image/png")}
     )
     assert response.status_code == 400
-    assert "Only PDF and TXT files" in response.json()["detail"]
+    assert "Only PDF, DOCX, and TXT files are supported." in response.json()["detail"]

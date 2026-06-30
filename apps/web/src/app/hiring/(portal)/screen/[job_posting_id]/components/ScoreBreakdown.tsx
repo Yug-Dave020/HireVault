@@ -1,6 +1,6 @@
 "use client";
 
-import { CVSubmission } from "@shared/types/talentlens";
+import { CVSubmission } from "@hirevault/shared";
 import { Progress } from "@/components/ui/progress";
 import { Info } from "lucide-react";
 

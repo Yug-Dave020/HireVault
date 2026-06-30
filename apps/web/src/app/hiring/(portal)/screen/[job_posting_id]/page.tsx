@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { JobPosting, CVSubmission } from "@shared/types/talentlens";
+import { JobPosting, CVSubmission } from "@hirevault/shared";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Sidebar from "./components/Sidebar";

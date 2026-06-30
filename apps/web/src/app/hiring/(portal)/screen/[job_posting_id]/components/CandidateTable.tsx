@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CVSubmission } from "@shared/types/talentlens";
+import { CVSubmission } from "@hirevault/shared";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
