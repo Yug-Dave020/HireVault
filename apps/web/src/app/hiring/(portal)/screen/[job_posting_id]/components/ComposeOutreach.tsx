@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CVSubmission } from "@shared/types/talentlens";
+import { CVSubmission } from "@hirevault/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Mail, Sparkles, CheckCircle2 } from "lucide-react";

@@ -1,6 +1,6 @@
 "use client";
 
-import { CVSubmission } from "@shared/types/talentlens";
+import { CVSubmission } from "@hirevault/shared";
 import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ScoreBreakdown from "./ScoreBreakdown";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { JobPosting } from "@shared/types/talentlens";
+import { JobPosting } from "@hirevault/shared";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
