@@ -1,46 +1,83 @@
-// apps/web/src/components/ui/progress.tsx
-/**
- * Progress — simple div-based progress bar.
- *
- * WHY not @base-ui/react/progress: the base-nova shadcn style installed
- * a Progress whose sub-components (ProgressTrack, ProgressIndicator) must
- * be rendered explicitly, but our onboarding page passes a plain `value`
- * prop (standard shadcn Radix API). This implementation matches the standard
- * Radix-style API: <Progress value={0-100} /> and just works.
- */
+"use client"
 
-"use client";
+import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
-  value?: number | null;
-}
-
-function Progress({ className, value, ...props }: ProgressProps) {
-  const clampedValue = Math.min(100, Math.max(0, value ?? 0));
-
+function Progress({
+  className,
+  children,
+  value,
+  ...props
+}: ProgressPrimitive.Root.Props) {
   return (
-    <div
-      role="progressbar"
-      aria-valuenow={clampedValue}
-      aria-valuemin={0}
-      aria-valuemax={100}
+    <ProgressPrimitive.Root
+      value={value}
       data-slot="progress"
-      className={cn(
-        "relative h-2 w-full overflow-hidden rounded-full bg-slate-200",
-        className
-      )}
+      className={cn("flex flex-wrap gap-3", className)}
       {...props}
     >
-      <div
-        data-slot="progress-indicator"
-        className="h-full rounded-full bg-[hsl(221,62%,22%)] transition-all duration-500 ease-out"
-        style={{ width: `${clampedValue}%` }}
-      />
-    </div>
-  );
+      {children}
+      <ProgressTrack>
+        <ProgressIndicator />
+      </ProgressTrack>
+    </ProgressPrimitive.Root>
+  )
 }
 
-export { Progress };
+function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
+  return (
+    <ProgressPrimitive.Track
+      className={cn(
+        "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
+        className
+      )}
+      data-slot="progress-track"
+      {...props}
+    />
+  )
+}
+
+function ProgressIndicator({
+  className,
+  ...props
+}: ProgressPrimitive.Indicator.Props) {
+  return (
+    <ProgressPrimitive.Indicator
+      data-slot="progress-indicator"
+      className={cn("h-full bg-primary transition-all", className)}
+      {...props}
+    />
+  )
+}
+
+function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
+  return (
+    <ProgressPrimitive.Label
+      className={cn("text-sm font-medium", className)}
+      data-slot="progress-label"
+      {...props}
+    />
+  )
+}
+
+function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
+  return (
+    <ProgressPrimitive.Value
+      className={cn(
+        "ml-auto text-sm text-muted-foreground tabular-nums",
+        className
+      )}
+      data-slot="progress-value"
+      {...props}
+    />
+  )
+}
+
+export {
+  Progress,
+  ProgressTrack,
+  ProgressIndicator,
+  ProgressLabel,
+  ProgressValue,
+}
