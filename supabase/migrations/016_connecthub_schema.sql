@@ -1,5 +1,5 @@
 -- 1. ConnectHub Conversations
-CREATE TABLE public.conversations (
+CREATE TABLE IF NOT EXISTS public.conversations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     job_posting_id UUID NOT NULL REFERENCES public.job_postings(id) ON DELETE CASCADE,
     hiring_manager_id UUID NOT NULL REFERENCES public.hiring_manager_profiles(id) ON DELETE CASCADE,
@@ -28,7 +28,7 @@ CREATE POLICY "Hiring managers can update conversations"
     USING (hiring_manager_id = auth.uid());
 
 -- 2. ConnectHub Messages
-CREATE TABLE public.messages (
+CREATE TABLE IF NOT EXISTS public.messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
     sender_id UUID NOT NULL, -- Could be the hiring manager (auth.uid) or the candidate (if they authenticate, or an anon ID)
@@ -64,7 +64,7 @@ CREATE POLICY "Hiring managers can insert messages"
     );
 
 -- 3. ConnectHub Interview Sessions
-CREATE TABLE public.interview_sessions (
+CREATE TABLE IF NOT EXISTS public.employer_interview_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
     scheduled_start TIMESTAMPTZ NOT NULL,
@@ -75,34 +75,34 @@ CREATE TABLE public.interview_sessions (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-ALTER TABLE public.interview_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.employer_interview_sessions ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Hiring managers can read interview sessions" 
-    ON public.interview_sessions 
+    ON public.employer_interview_sessions 
     FOR SELECT 
     USING (
         EXISTS (
             SELECT 1 FROM public.conversations 
-            WHERE conversations.id = interview_sessions.conversation_id 
+            WHERE conversations.id = employer_interview_sessions.conversation_id 
             AND conversations.hiring_manager_id = auth.uid()
         )
     );
 
 CREATE POLICY "Hiring managers can manage interview sessions" 
-    ON public.interview_sessions 
+    ON public.employer_interview_sessions 
     FOR ALL 
     USING (
         EXISTS (
             SELECT 1 FROM public.conversations 
-            WHERE conversations.id = interview_sessions.conversation_id 
+            WHERE conversations.id = employer_interview_sessions.conversation_id 
             AND conversations.hiring_manager_id = auth.uid()
         )
     );
 
 -- 4. Interview Briefs (AI Generated)
-CREATE TABLE public.interview_briefs (
+CREATE TABLE IF NOT EXISTS public.interview_briefs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    interview_session_id UUID NOT NULL REFERENCES public.interview_sessions(id) ON DELETE CASCADE,
+    interview_session_id UUID NOT NULL REFERENCES public.employer_interview_sessions(id) ON DELETE CASCADE,
     brief_content JSONB NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -114,15 +114,15 @@ CREATE POLICY "Hiring managers can read interview briefs"
     FOR SELECT 
     USING (
         EXISTS (
-            SELECT 1 FROM public.interview_sessions
-            JOIN public.conversations ON interview_sessions.conversation_id = conversations.id
-            WHERE interview_sessions.id = interview_briefs.interview_session_id 
+            SELECT 1 FROM public.employer_interview_sessions
+            JOIN public.conversations ON employer_interview_sessions.conversation_id = conversations.id
+            WHERE employer_interview_sessions.id = interview_briefs.interview_session_id 
             AND conversations.hiring_manager_id = auth.uid()
         )
     );
 
 -- 5. Async Video Screens
-CREATE TABLE public.async_video_screens (
+CREATE TABLE IF NOT EXISTS public.async_video_screens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     cv_submission_id UUID NOT NULL REFERENCES public.cv_submissions(id) ON DELETE CASCADE,
     video_storage_path TEXT NOT NULL,
@@ -158,3 +158,6 @@ CREATE POLICY "Candidates can upload videos"
 CREATE POLICY "Hiring managers can read videos" 
     ON storage.objects FOR SELECT 
     USING ( bucket_id = 'async_videos' );
+NOTIFY pgrst, 'reload schema';
+
+NOTIFY pgrst, 'reload schema';
