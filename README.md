@@ -15,6 +15,8 @@ HireVault empowers users to dynamically tailor their CVs for Applicant Tracking 
 - **ATS Optimization Studio**: Import, create, and refine CV variants tailored to specific job descriptions. Our parsing engine ensures 100% structural compliance with corporate tracking systems.
 - **Conversational AI Mock Interviews**: Practice behavioral and technical interviews via an interactive streaming agent. Face distinct personas (like the "Encouraging Mentor" or "FAANG Hardliner").
 - **Live Voice & Code Sandbox**: Answer interview questions using your microphone (powered by real-time Whisper transcription) or write code in a live, shared editor sandbox.
+- **ConnectHub Employer Portal**: A dedicated portal for hiring managers to publish job postings, review applicant profiles, and message candidates directly.
+- **Async Video Screening**: Employers can request pre-recorded video screens. Candidate videos are automatically transcribed and analyzed by AI to extract key strengths and timestamps.
 - **Dynamic Dashboard & Analytics**: Monitor your Market Alignment score, track active application links, and easily identify suggested skill gaps missing from your target roles.
 - **Ultra-Fast LLM Orchestration**: Powered exclusively by Groq (`llama-3.3-70b-versatile`), offering near-instantaneous structural feedback and lifelike conversational latency.
 

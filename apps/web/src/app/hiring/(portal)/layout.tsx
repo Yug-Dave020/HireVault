@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Users, LogOut, Briefcase, Video, MessageSquare } from "lucide-react";
+import { LogOut, Briefcase, Video, MessageSquare } from "lucide-react";
 
 export default async function HiringLayout({
   children,
@@ -8,7 +8,7 @@ export default async function HiringLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
 
   // We are in /hiring. If it's exactly /hiring/login, we don't apply the shell layout to avoid nesting
   // But Next.js Layouts wrap all children. So we just conditionally render the shell.
@@ -16,7 +16,7 @@ export default async function HiringLayout({
   // A better approach is to have /hiring/(auth)/login and /hiring/(portal)/layout.tsx,
   // but to keep it simple, we'll just check if user is logged in. If not, we don't render the shell.
 
-  if (!session) {
+  if (!user) {
     return <>{children}</>;
   }
 
@@ -24,7 +24,7 @@ export default async function HiringLayout({
   const { data: profile } = await supabase
     .from("hiring_manager_profiles")
     .select("*")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   if (!profile) {
@@ -38,9 +38,8 @@ export default async function HiringLayout({
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col hidden md:flex">
         <div className="h-16 flex items-center px-6 border-b border-zinc-200">
-          <Link href="/hiring/dashboard" className="flex items-center gap-2 text-[#1da074] font-bold text-xl tracking-tight">
-            <Users className="h-6 w-6" />
-            HireVault
+          <Link href="/hiring/dashboard" className="flex items-center gap-2">
+            <img src="/logo-cropped.png" alt="HireVault" className="h-8 w-auto object-contain" />
           </Link>
         </div>
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -70,9 +69,8 @@ export default async function HiringLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <header className="h-16 bg-white border-b border-zinc-200 flex items-center px-6 md:hidden">
-          <Link href="/hiring/dashboard" className="text-[#1da074] font-bold text-lg flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            HireVault
+          <Link href="/hiring/dashboard" className="flex items-center gap-2">
+            <img src="/logo-cropped.png" alt="HireVault" className="h-7 w-auto object-contain" />
           </Link>
         </header>
         <main className="flex-1 overflow-auto p-6 md:p-8">

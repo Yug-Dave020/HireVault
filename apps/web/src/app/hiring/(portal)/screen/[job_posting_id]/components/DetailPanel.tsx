@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ScoreBreakdown from "./ScoreBreakdown";
 import ChatWithCV from "./ChatWithCV";
 import ComposeOutreach from "./ComposeOutreach";
+import ConnectHubRequest from "./ConnectHubRequest";
 
 interface DetailPanelProps {
   candidate: CVSubmission;
@@ -43,6 +44,9 @@ export default function DetailPanel({ candidate, anonymized, onClose, onUpdateSt
             <TabsTrigger value="outreach" className="rounded-none border-b-2 border-transparent data-[state=active]:border-indigo-600 data-[state=active]:bg-transparent px-4 pb-2 pt-0 font-semibold data-[state=active]:text-indigo-600">
               Compose Outreach
             </TabsTrigger>
+            <TabsTrigger value="connecthub" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#1da074] data-[state=active]:bg-transparent px-4 pb-2 pt-0 font-semibold data-[state=active]:text-[#1da074]">
+              ConnectHub
+            </TabsTrigger>
           </TabsList>
 
           <div className="flex-1 overflow-hidden relative">
@@ -59,6 +63,14 @@ export default function DetailPanel({ candidate, anonymized, onClose, onUpdateSt
                 candidate={candidate} 
                 anonymized={anonymized} 
                 onUpdateStatus={onUpdateStatus}
+              />
+            </TabsContent>
+
+            <TabsContent value="connecthub" className="h-full mt-0 outline-none overflow-y-auto">
+              <ConnectHubRequest 
+                candidate={candidate} 
+                jobPostingId={candidate.job_posting_id}
+                anonymized={anonymized} 
               />
             </TabsContent>
           </div>
