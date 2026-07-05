@@ -34,15 +34,15 @@ export default function CreateJobModal() {
       setLoading(true);
       setError("");
       
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Not authenticated");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
       const { error: dbError } = await supabase
         .from("job_postings")
         .insert({
           title: title.trim(),
           description: description.trim(),
-          hiring_manager_id: session.user.id
+          hiring_manager_id: user.id
         })
         .select()
         .single();

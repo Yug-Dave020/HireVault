@@ -4,16 +4,16 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { data: profile } = await supabase
       .from("hiring_manager_profiles")
       .select("id")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .single();
 
     if (!profile) {
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-user-id": session.user.id,
+        "x-user-id": user.id,
       },
       body: JSON.stringify(body),
     });

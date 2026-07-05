@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard, FileText, Video, User, LogOut, ChevronLeft, ChevronRight
+  LayoutDashboard, FileText, Video, User, LogOut, ChevronLeft, ChevronRight, MessageSquare
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -47,6 +47,13 @@ export function Sidebar({ displayName, email, isCollapsed, onToggle }: SidebarPr
       icon: Video,
       activeClass: "bg-purple-50 text-purple-600 font-bold",
       iconClass: "text-purple-600"
+    },
+    {
+      href: "/messages",
+      label: "Employer Chats",
+      icon: MessageSquare,
+      activeClass: "bg-blue-50 text-blue-600 font-bold",
+      iconClass: "text-blue-600"
     },
     {
       href: "/profile",

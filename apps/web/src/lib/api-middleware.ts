@@ -20,15 +20,19 @@ export async function withApiAuthAndValidation<T>(
   try {
     const supabase = await createClient();
     const {
-      data: { session },
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const {
+      data: { session }
     } = await supabase.auth.getSession();
 
-    if (!session || !session.user) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Rate Limiting (by user ID)
-    const { success } = aiRateLimiter.check(session.user.id);
+    const { success } = aiRateLimiter.check(user.id);
     if (!success) {
       return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
     }
@@ -47,8 +51,8 @@ export async function withApiAuthAndValidation<T>(
     }
 
     return await handler(req, {
-      user: session.user,
-      token: session.access_token,
+      user: user,
+      token: session?.access_token || "",
       parsedBody,
     });
   } catch (error: any) {

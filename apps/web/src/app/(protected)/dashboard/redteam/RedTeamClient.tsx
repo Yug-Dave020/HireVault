@@ -17,6 +17,7 @@ export function RedTeamClient({ cvId }: { cvId: string }) {
     setError(null);
     try {
       const supabase = createClient();
+      await supabase.auth.getUser();
       const { data: { session } } = await supabase.auth.getSession();
       const baseUrl = process.env.NEXT_PUBLIC_WORKER_WS_URL?.replace("ws://", "http://").replace("wss://", "https://") || "http://localhost:8000";
       

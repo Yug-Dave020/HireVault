@@ -8,9 +8,9 @@ export const dynamic = "force-dynamic";
 
 export default async function HiringDashboard() {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     redirect("/hiring/login");
   }
 
@@ -23,7 +23,7 @@ export default async function HiringDashboard() {
       created_at,
       cv_submissions(id, composite_score)
     `)
-    .eq("hiring_manager_id", session.user.id)
+    .eq("hiring_manager_id", user.id)
     .order("created_at", { ascending: false });
 
   return (

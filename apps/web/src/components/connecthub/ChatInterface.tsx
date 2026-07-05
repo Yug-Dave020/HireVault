@@ -19,7 +19,9 @@ export function ChatInterface({
   candidateName = "Candidate",
   draftMessage = "",
   onDraftMessageChange,
-  incomingSystemMessage = ""
+  incomingSystemMessage = "",
+  onToggleScheduler,
+  isCandidateView = false
 }: { 
   conversationId: string;
   currentUserId: string;
@@ -27,6 +29,8 @@ export function ChatInterface({
   draftMessage?: string;
   onDraftMessageChange?: (msg: string) => void;
   incomingSystemMessage?: string;
+  onToggleScheduler?: () => void;
+  isCandidateView?: boolean;
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -157,17 +161,20 @@ export function ChatInterface({
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 rounded-lg">
-            <Phone className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 rounded-lg">
-            <Video className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 rounded-lg">
-            <Calendar className="w-4 h-4" />
-          </Button>
-        </div>
+        {/* Action Buttons: Hide scheduler controls if candidate view */}
+        {!isCandidateView && (
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 rounded-lg">
+              <Phone className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 rounded-lg">
+              <Video className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onToggleScheduler} className="text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 rounded-lg">
+              <Calendar className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Messages Area */}
