@@ -1,11 +1,12 @@
-FROM python:3.12-slim AS base
+FROM python:3.12-slim-bullseye AS base
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
     libpango-1.0-0 \
-    libpangoft2-1.0-0 \
+    libharfbuzz0b \
+    libfontconfig1 \
     libgdk-pixbuf2.0-0 \
     shared-mime-info \
   && rm -rf /var/lib/apt/lists/*
