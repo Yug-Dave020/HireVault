@@ -1,0 +1,28 @@
+name: Worker CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'apps/worker/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'apps/worker/**'
+
+jobs:
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Test Docker Build (Render Compatibility)
+        run: |
+          echo "Building the worker Docker image exactly as Render would..."
+          docker build -t worker-test apps/worker/
