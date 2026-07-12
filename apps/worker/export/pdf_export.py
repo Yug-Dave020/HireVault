@@ -358,6 +358,11 @@ async def export_pdf(cv_content: dict, design_prefs: dict = None) -> bytes:
     logger.info(f"Exporting PDF using theme: {design_prefs.get('theme', 'modern_minimalist')}")
     html_string = render_cv_html(cv_content, design_prefs)
     
-    pdf_bytes = HTML(string=html_string).write_pdf()
+    # WeasyPrint is synchronous and can block the event loop indefinitely if it gets stuck fetching remote fonts/images.
+    # We must run it in a threadpool to prevent freezing the entire server.
+    from starlette.concurrency import run_in_threadpool
+    from weasyprint import HTML
+    
+    pdf_bytes = await run_in_threadpool(lambda: HTML(string=html_string).write_pdf())
     logger.info("PDF bytes rendered successfully via WeasyPrint.")
     return pdf_bytes

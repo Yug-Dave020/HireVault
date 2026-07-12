@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { withApiAuthAndValidation } from "@/lib/api-middleware";
 
+export const maxDuration = 60;
+
 export const dynamic = "force-dynamic";
 
 const WORKER_URL = process.env.WORKER_URL || "http://127.0.0.1:8000";

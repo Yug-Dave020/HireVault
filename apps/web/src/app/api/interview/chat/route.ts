@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { withApiAuthAndValidation } from "@/lib/api-middleware";
 import { z } from "zod";
 
+export const maxDuration = 60;
+
 const ChatSchema = z.object({
   personaId: z.string(),
   currentStage: z.string(),
