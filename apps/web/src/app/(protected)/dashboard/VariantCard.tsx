@@ -115,11 +115,11 @@ export function VariantCard({ variant }: { variant: any }) {
         </div>
       </div>
 
-      <div className="pt-4 mt-4 border-t border-zinc-100 flex items-center justify-between">
+      <div className="pt-4 mt-4 border-t border-zinc-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <span className="text-[10px] text-zinc-400">
           Edited {new Date(variant.updated_at).toLocaleDateString()}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Popover>
             {Array.isArray(variant.cached_critiques) && variant.cached_critiques.length > 0 ? (
               <PopoverTrigger className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-rose-100 text-rose-600 text-[9px] font-black cursor-pointer hover:scale-105 active:scale-95 transition-transform" title={`${variant.cached_critiques.length} actionable fixes`}>

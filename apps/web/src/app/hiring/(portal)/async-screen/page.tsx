@@ -83,19 +83,21 @@ export default function AsyncScreenDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Async Video Screening</h1>
           <p className="text-sm text-zinc-500 mt-1">
             Review pre-recorded candidate responses analyzed by ConnectHub AI.
           </p>
         </div>
-        <Link href="/hiring/async-screen/new">
-          <Button className="bg-[#1da074] hover:bg-[#15805c] text-white">
-            <Video className="w-4 h-4 mr-2" />
-            Create New Screening Request
-          </Button>
-        </Link>
+        <div className="w-full sm:w-auto">
+          <Link href="/hiring/async-screen/new" className="w-full sm:w-auto block">
+            <Button className="bg-[#1da074] hover:bg-[#15805c] text-white w-full sm:w-auto">
+              <Video className="w-4 h-4 mr-2" />
+              Create New Screening Request
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {loading ? (

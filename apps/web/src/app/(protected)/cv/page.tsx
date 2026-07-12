@@ -353,7 +353,7 @@ export default function CVPage() {
 
   return (
     <div className="flex-1 flex flex-col bg-[#f8f9fa] overflow-y-auto">
-      <main className="flex-1 max-w-[1200px] mx-auto w-full px-6 py-10 flex flex-col justify-start space-y-8">
+      <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 md:px-6 py-6 md:py-10 flex flex-col justify-start space-y-8">
         <div className="text-left space-y-2">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
             Design Your ATS-Optimized CV
@@ -555,11 +555,11 @@ export default function CVPage() {
                         )}
                       </div>
 
-                      <div className="w-full flex items-center justify-between border-t border-zinc-100 pt-4 mt-1">
+                      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 border-t border-zinc-100 pt-4 mt-1">
                         <span className="text-[10px] text-zinc-400">
                           Updated: {new Date(variant.updated_at).toLocaleDateString()}
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <button
                             onClick={() => deleteVariant(variant.id)}
                             title="Delete Variant"

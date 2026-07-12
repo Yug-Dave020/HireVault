@@ -74,9 +74,9 @@ export function MessagesClient({
   });
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] bg-[#f4f5f6]">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-8rem)] bg-[#f4f5f6]">
       {/* Left Sidebar: Chat List */}
-      <div className="w-80 bg-white border-r border-zinc-200 flex flex-col h-full shrink-0">
+      <div className={`w-full md:w-80 bg-white border-r border-zinc-200 flex-col h-full shrink-0 ${activeChatId ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-zinc-100 space-y-4">
           <h2 className="font-bold text-xl text-zinc-900 tracking-tight">Employer Chats</h2>
           <div className="relative">
@@ -134,11 +134,17 @@ export function MessagesClient({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex min-w-0 h-full">
+      <div className={`flex-1 flex min-w-0 h-full ${!activeChatId ? 'hidden md:flex' : 'flex'}`}>
         {activeChat ? (
           <>
             {/* Chat Pane */}
-            <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-200">
+            <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-200 relative">
+              <button 
+                className="md:hidden absolute top-4 left-4 z-10 bg-white p-2 rounded-lg shadow border border-zinc-200 text-sm font-bold"
+                onClick={() => window.location.href = '/messages'}
+              >
+                ← Back
+              </button>
               <ChatInterface 
                 conversationId={activeChat.id}
                 currentUserId={currentUserId}

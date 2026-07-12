@@ -42,14 +42,14 @@ export function FeatureGrid() {
           </div>
 
           {/* 2. Live Mock Interviews (8 cols) */}
-          <div className="md:col-span-8 bg-[#f5f3ff] rounded-3xl p-8 relative overflow-hidden min-h-[360px] flex flex-col justify-between group border border-purple-100/50">
+          <div className="md:col-span-8 bg-[#f5f3ff] rounded-3xl p-8 relative overflow-hidden min-h-[480px] sm:min-h-[360px] flex flex-col justify-between group border border-purple-100/50">
             <div className="relative z-10 max-w-sm">
               <h3 className="text-2xl font-bold text-[#0f1c2e] mb-3">Live Mock Interviews</h3>
               <p className="text-purple-800/70 font-medium">Ultra-low latency conversational agents ready to test your behavioral and technical knowledge.</p>
             </div>
             
             {/* CSS Graphic */}
-            <div className="absolute -bottom-4 right-8 w-96 h-64 bg-white rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] border border-purple-100 p-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 flex flex-col">
+            <div className="absolute -bottom-4 right-0 sm:right-8 w-full sm:w-96 h-64 bg-white rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] border border-purple-100 p-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 flex flex-col">
               <div className="flex items-center justify-between mb-4 pb-3 border-b border-purple-50">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
@@ -61,14 +61,14 @@ export function FeatureGrid() {
               <div className="flex-1 space-y-3">
                 <div className="flex gap-3">
                   <div className="w-8 h-8 rounded-full bg-purple-100 flex-shrink-0 flex items-center justify-center"><Mic className="h-4 w-4 text-purple-600"/></div>
-                  <div className="bg-purple-50 p-3 rounded-2xl rounded-tl-sm w-3/4">
+                  <div className="bg-purple-50 p-3 rounded-2xl rounded-tl-sm w-full sm:w-3/4">
                     <div className="h-2 w-full bg-purple-200 rounded mb-1.5"></div>
                     <div className="h-2 w-4/5 bg-purple-200 rounded"></div>
                   </div>
                 </div>
                 <div className="flex gap-3 flex-row-reverse">
                   <div className="w-8 h-8 rounded-full bg-zinc-100 flex-shrink-0"></div>
-                  <div className="bg-[#1da074] p-3 rounded-2xl rounded-tr-sm w-2/3">
+                  <div className="bg-[#1da074] p-3 rounded-2xl rounded-tr-sm w-full sm:w-2/3">
                     <div className="flex items-center gap-1 h-3">
                       {[1,2,3,4,5,6,7].map(i => (
                         <div key={i} className="w-1 bg-white/60 rounded-full animate-pulse" style={{ height: `${Math.max(40, Math.random() * 100)}%`, animationDelay: `${i*0.1}s` }}></div>
@@ -81,14 +81,14 @@ export function FeatureGrid() {
           </div>
 
           {/* 3. Instant Expert Feedback (8 cols) */}
-          <div className="md:col-span-8 bg-[#fffbeb] rounded-3xl p-8 relative overflow-hidden min-h-[360px] flex flex-col group border border-amber-100/50">
+          <div className="md:col-span-8 bg-[#fffbeb] rounded-3xl p-8 relative overflow-hidden min-h-[500px] sm:min-h-[360px] flex flex-col group border border-amber-100/50">
             <div className="relative z-10 max-w-sm mb-8">
               <h3 className="text-2xl font-bold text-[#0f1c2e] mb-3">Instant Expert Feedback</h3>
               <p className="text-amber-800/80 font-medium">Get immediate actionable feedback on your interview answers and resume bullet points.</p>
             </div>
             
             {/* CSS Graphic */}
-            <div className="absolute top-8 -right-4 w-[400px] bg-white rounded-2xl shadow-2xl p-5 border border-amber-100 transform group-hover:-translate-x-4 transition-transform duration-500">
+            <div className="absolute top-40 sm:top-8 sm:-right-4 w-[280px] sm:w-[400px] bg-white rounded-2xl shadow-2xl p-5 border border-amber-100 transform sm:group-hover:-translate-x-4 transition-transform duration-500">
               <div className="space-y-4">
                 <div className="relative">
                   <div className="text-[10px] text-zinc-400 mb-1">Original Bullet</div>
@@ -96,12 +96,12 @@ export function FeatureGrid() {
                     Did marketing campaigns and increased sales a lot.
                   </div>
                   {/* Highlight Tooltip */}
-                  <div className="absolute -bottom-3 -right-2 bg-amber-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                  <div className="absolute -bottom-3 right-0 sm:-right-2 bg-amber-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1 z-10">
                     <Zap className="h-3 w-3" />
                     Needs metrics!
                   </div>
                 </div>
-                <div className="pl-4 border-l-2 border-[#1da074] pt-2">
+                <div className="pl-4 border-l-2 border-[#1da074] pt-4 sm:pt-2">
                   <div className="text-[10px] text-[#1da074] font-bold mb-1 flex items-center gap-1"><Check className="h-3 w-3"/> AI Suggestion</div>
                   <div className="text-xs text-zinc-800 font-medium bg-[#f0fdf4] p-3 rounded-lg border border-emerald-100">
                     Spearheaded 5+ cross-channel marketing campaigns, driving a 45% increase in lead generation and generating $2M in revenue.

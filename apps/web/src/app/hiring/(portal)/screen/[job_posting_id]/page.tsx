@@ -103,7 +103,7 @@ export default function ScreenPage({ params }: { params: { job_posting_id: strin
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden -m-6 md:-m-8">
+    <div className="flex flex-col md:flex-row h-full md:h-[calc(100vh-4rem)] md:overflow-hidden -m-6 md:-m-8">
       {/* LEFT SIDEBAR */}
       <Sidebar 
         jobPosting={jobPosting} 
@@ -117,7 +117,7 @@ export default function ScreenPage({ params }: { params: { job_posting_id: strin
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col min-w-0 bg-white">
         {/* STATS */}
-        <div className="grid grid-cols-4 border-b border-zinc-200/60 shrink-0">
+        <div className="grid grid-cols-2 md:grid-cols-4 border-b border-zinc-200/60 shrink-0">
           <StatCard title="Total CVs" value={candidates.length} />
           <StatCard title="Strong Matches" value={strongMatches} highlight />
           <StatCard title="Shortlisted" value={shortlisted} />

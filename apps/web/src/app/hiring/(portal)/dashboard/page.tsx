@@ -28,12 +28,14 @@ export default async function HiringDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">Job Postings</h1>
           <p className="text-zinc-500 mt-1">Manage your active recruitment pipelines and analyze candidates.</p>
         </div>
-        <CreateJobModal />
+        <div className="w-full sm:w-auto">
+          <CreateJobModal />
+        </div>
       </div>
 
       {!jobs || jobs.length === 0 ? (

@@ -37,7 +37,7 @@ export function FeatureAlternating() {
             </div>
           </div>
           <div className="lg:w-1/2 w-full">
-            <div className="relative bg-zinc-50 rounded-3xl border border-zinc-200 p-8 shadow-xl">
+            <div className="relative bg-zinc-50 rounded-3xl border border-zinc-200 p-4 sm:p-8 shadow-xl">
               {/* CSS Mockup of CV Builder */}
               <div className="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden">
                 <div className="h-10 bg-zinc-50 border-b border-zinc-100 flex items-center px-4">
@@ -47,8 +47,8 @@ export function FeatureAlternating() {
                     <div className="w-3 h-3 rounded-full bg-green-400"></div>
                   </div>
                 </div>
-                <div className="flex">
-                  <div className="w-1/3 border-r border-zinc-100 p-4 space-y-4">
+                <div className="flex flex-col sm:flex-row">
+                  <div className="w-full sm:w-1/3 border-b sm:border-b-0 sm:border-r border-zinc-100 p-4 space-y-4">
                     <div className="h-4 w-16 bg-zinc-200 rounded"></div>
                     <div className="space-y-2">
                       <div className="h-8 bg-[#1da074]/10 border border-[#1da074]/30 rounded-md"></div>
@@ -56,7 +56,7 @@ export function FeatureAlternating() {
                       <div className="h-8 bg-zinc-100 rounded-md"></div>
                     </div>
                   </div>
-                  <div className="w-2/3 p-6 flex flex-col items-center">
+                  <div className="w-full sm:w-2/3 p-6 flex flex-col items-center">
                     <div className="w-full max-w-[200px] h-[280px] bg-white shadow-md border border-zinc-200 p-4">
                       <div className="h-2 w-24 bg-zinc-800 rounded mb-4"></div>
                       <div className="h-1 w-full bg-zinc-200 rounded mb-2"></div>
@@ -76,7 +76,7 @@ export function FeatureAlternating() {
         {/* Feature 2 */}
         <div className="flex flex-col-reverse lg:flex-row items-center gap-16">
           <div className="lg:w-1/2 w-full">
-            <div className="relative bg-zinc-900 rounded-3xl border border-zinc-800 p-8 shadow-2xl">
+            <div className="relative bg-zinc-900 rounded-3xl border border-zinc-800 p-4 sm:p-8 shadow-2xl">
               {/* CSS Mockup of Interview */}
               <div className="bg-zinc-950 rounded-xl border border-zinc-800 overflow-hidden flex flex-col h-[360px]">
                 <div className="h-12 border-b border-zinc-800 flex items-center justify-between px-4">

@@ -31,10 +31,20 @@ export async function withApiAuthAndValidation<T>(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Rate Limiting (by user ID)
-    const { success } = aiRateLimiter.check(user.id);
+    // Rate Limiting (by user ID) - Using AI rate limiter for these specific endpoints
+    const { success, reset } = await aiRateLimiter.limit(user.id);
     if (!success) {
-      return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
+      const retryAfter = Math.ceil((reset - Date.now()) / 1000);
+      return NextResponse.json(
+        { error: "Too Many Requests" }, 
+        { 
+          status: 429,
+          headers: {
+            "Retry-After": retryAfter.toString(),
+            "X-RateLimit-Reset": reset.toString()
+          }
+        }
+      );
     }
 
     let parsedBody: any = null;

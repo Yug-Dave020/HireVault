@@ -48,7 +48,7 @@ export function ContextPanel({
   }, [interviewSessionId]);
 
   return (
-    <div className="w-80 bg-zinc-50 border-l border-zinc-200 flex flex-col h-full text-zinc-900 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-200 shrink-0">
+    <div className="w-80 bg-zinc-50 border-l border-zinc-200 flex flex-col h-full text-zinc-900 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-200 shrink-0 hidden lg:flex">
       <div className="p-5 border-b border-zinc-200">
         <h3 className="font-semibold text-sm text-zinc-500 uppercase tracking-wider mb-4">AI Context</h3>
         

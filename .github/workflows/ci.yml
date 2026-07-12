@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -32,6 +32,12 @@ jobs:
 
       - name: Run Type Check
         run: pnpm run type-check
+
+      - name: Test Vercel Compatibility (Build)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://mock.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock"
+        run: pnpm run test:vercel
 
   test-worker:
     name: Worker Unit Tests

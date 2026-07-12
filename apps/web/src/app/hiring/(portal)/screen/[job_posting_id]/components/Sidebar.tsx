@@ -67,7 +67,7 @@ export default function Sidebar({ jobPosting, onUploadSuccess, onRerank, anonymi
   };
 
   return (
-    <div className="w-72 bg-zinc-50 border-r border-zinc-200/60 flex flex-col shrink-0">
+    <div className="w-full md:w-72 bg-zinc-50 border-r border-zinc-200/60 flex flex-col shrink-0">
       <div className="p-4 border-b border-zinc-200/60">
         <h2 className="font-bold text-zinc-900 truncate" title={jobPosting.title}>{jobPosting.title}</h2>
       </div>
