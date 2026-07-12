@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  ws: '>=8.21.0'
+  turbo: '>=2.9.14'
+  js-yaml: '>=4.2.0'
+  dompurify: '>=3.4.11'
+
 importers:
 
   .:
@@ -24,8 +30,8 @@ importers:
         specifier: ^4.22.4
         version: 4.22.4
       turbo:
-        specifier: ^2.3.3
-        version: 2.9.6
+        specifier: '>=2.9.14'
+        version: 2.10.4
       typescript:
         specifier: ^5.7.3
         version: 5.9.3
@@ -53,6 +59,12 @@ importers:
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
+      '@upstash/ratelimit':
+        specifier: ^2.0.8
+        version: 2.0.8(@upstash/redis@1.38.0)
+      '@upstash/redis':
+        specifier: ^1.38.0
+        version: 1.38.0
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
@@ -788,33 +800,33 @@ packages:
   '@ts-morph/common@0.27.0':
     resolution: {integrity: sha512-Wf29UqxWDpc+i61k3oIOzcUfQt79PIT9y/MWfAGlrkjg6lBC1hwDECLXPVJAhWjiGbfBCxZd65F/LIZF3+jeJQ==}
 
-  '@turbo/darwin-64@2.9.6':
-    resolution: {integrity: sha512-X/56SnVXIQZBLKwniGTwEQTGmtE5brSACnKMBWpY3YafuxVYefrC2acamfjgxP7BG5w3I+6jf0UrLoSzgPcSJg==}
+  '@turbo/darwin-64@2.10.4':
+    resolution: {integrity: sha512-m1MUEI4MJ69r5CwfMYxmHi0H0rrgiYCBOp0tgBZ9x/YVvOb5uu/lRIDyDwdtH054R2yWeQaIigUGu6aCX9f8cA==}
     cpu: [x64]
     os: [darwin]
 
-  '@turbo/darwin-arm64@2.9.6':
-    resolution: {integrity: sha512-aalBeSl4agT/QtYGDyf/XLajedWzUC9Vg/pm/YO6QQ93vkQ91Vz5uK1ta5RbVRDozQSz4njxUNqRNmOXDzW+qw==}
+  '@turbo/darwin-arm64@2.10.4':
+    resolution: {integrity: sha512-VQ1Yxs5zkPT+2z7t1P4mvn6JmcKLkOCAsPuK9XbOvuVj0DlTlETfIXNisX0771v/vTWHOQqiwoGi+TtAUq8efw==}
     cpu: [arm64]
     os: [darwin]
 
-  '@turbo/linux-64@2.9.6':
-    resolution: {integrity: sha512-YKi05jnNHaD7vevgYwahpzGwbsNNTwzU2c7VZdmdFm7+cGDP4oREUWSsainiMfRqjRuolQxBwRn8wf1jmu+YZA==}
+  '@turbo/linux-64@2.10.4':
+    resolution: {integrity: sha512-IzV1QovmwX7mfGnVinmE++2IB8tbeo38weltiuH5zNqwCTBjLs/DytyRKx+bmnhHdXIq9SheR8p0Nip/LBUPHg==}
     cpu: [x64]
     os: [linux]
 
-  '@turbo/linux-arm64@2.9.6':
-    resolution: {integrity: sha512-02o/ZS69cOYEDczXvOB2xmyrtzjQ2hVFtWZK1iqxXUfzMmTjZK4UumrfNnjckSg+gqeBfnPRHa0NstA173Ik3g==}
+  '@turbo/linux-arm64@2.10.4':
+    resolution: {integrity: sha512-rfujSQkP5aYiRn0PgTM7F00WkJCP/bKDVZbOx3WmrZwa/vHA0bplhCl328kpX7VI9HH2vI90ISGwuSVgJgoqTw==}
     cpu: [arm64]
     os: [linux]
 
-  '@turbo/windows-64@2.9.6':
-    resolution: {integrity: sha512-wVdQjvnBI15wB6JrA+43CtUtagjIMmX6XYO758oZHAsCNSxqRlJtdyujih0D8OCnwCRWiGWGI63zAxR0hO6s9g==}
+  '@turbo/windows-64@2.10.4':
+    resolution: {integrity: sha512-NnspP7Wd5fa3Wwnqv9bKfhegqZzuHBgbPxdZU/idTLQcazx/vgKu95JlCx2YHY0hdvKCnPcARrDwM+KEUmaO7A==}
     cpu: [x64]
     os: [win32]
 
-  '@turbo/windows-arm64@2.9.6':
-    resolution: {integrity: sha512-1XUUyWW0W6FTSqGEhU8RHVqb2wP1SPkr7hIvBlMEwH9jr+sJQK5kqeosLJ/QaUv4ecSAd1ZhIrLoW7qslAzT4A==}
+  '@turbo/windows-arm64@2.10.4':
+    resolution: {integrity: sha512-Iv02YgOpaEShc2OkG7mgCJ2pEw1RUKiKbs0h8W5wAf4jZ5vpmraTEjuGTgHRuOORQnC1GN3KHo5WB+hu1abRMA==}
     cpu: [arm64]
     os: [win32]
 
@@ -1115,6 +1127,18 @@ packages:
     resolution: {integrity: sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g==}
     cpu: [x64]
     os: [win32]
+
+  '@upstash/core-analytics@0.0.10':
+    resolution: {integrity: sha512-7qJHGxpQgQr9/vmeS1PktEwvNAF7TI4iJDi8Pu2CFZ9YUGHZH4fOP5TfYlZ4aVxfopnELiE4BS4FBjyK7V1/xQ==}
+    engines: {node: '>=16.0.0'}
+
+  '@upstash/ratelimit@2.0.8':
+    resolution: {integrity: sha512-YSTMBJ1YIxsoPkUMX/P4DDks/xV5YYCswWMamU8ZIfK9ly6ppjRnVOyBhMDXBmzjODm4UQKcxsJPvaeFAijp5w==}
+    peerDependencies:
+      '@upstash/redis': ^1.34.3
+
+  '@upstash/redis@1.38.0':
+    resolution: {integrity: sha512-wu+dZBptlLy0+MCUEoHmzrY/TnmgDey3+c7EbIGwrLqAvkP8yi5MWZHYGIFtAygmL4Bkz2TdFu+eU0vFPncIcg==}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -1676,8 +1700,8 @@ packages:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
 
-  dompurify@3.2.7:
-    resolution: {integrity: sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==}
+  dompurify@3.4.12:
+    resolution: {integrity: sha512-zQvGet8Z2sWbQhCmfFz/T5QWH2oBmjnqK3qvOjaqaNLrLEF912WamU+ohnTp0TCep/MFVHpdJuCZEdFOdTnEFg==}
 
   dotenv@17.4.2:
     resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
@@ -2433,8 +2457,8 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@4.1.1:
-    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
+  js-yaml@5.2.1:
+    resolution: {integrity: sha512-zfLtNfQqxVqq3uaTqSkh4x4hZw3KHobGUA0fJUj4wawW8bsQLTVqpHdXSIzidh7o+4lEW36tANuAGdaFx6Zgnw==}
     hasBin: true
 
   jsesc@3.1.0:
@@ -3371,8 +3395,8 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  turbo@2.9.6:
-    resolution: {integrity: sha512-+v2QJey7ZUeUiuigkU+uFfklvNUyPI2VO2vBpMYJA+a1hKFLFiKtUYlRHdb3P9CrAvMzi0upbjI4WT+zKtqkBg==}
+  turbo@2.10.4:
+    resolution: {integrity: sha512-GQpduILaKjoaGljw097ScsSyKTtZSY7cZ3bJktzfTkPMyCf3ShKLuXK2IaOEN2Plziml+ArR7WJ1m+V4VbnaKQ==}
     hasBin: true
 
   tw-animate-css@1.4.0:
@@ -3418,6 +3442,9 @@ packages:
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
+
+  uncrypto@0.1.3:
+    resolution: {integrity: sha512-Ql87qFHB3s/De2ClA9e0gsnS6zXG27SkTiSJwjCc9MebbfapQfuPzumMIUMi38ezPZVNFcHI9sUIepeQfw8J8Q==}
 
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
@@ -3510,8 +3537,8 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
-  ws@8.20.0:
-    resolution: {integrity: sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA==}
+  ws@8.21.0:
+    resolution: {integrity: sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -3903,7 +3930,7 @@ snapshots:
       globals: 13.24.0
       ignore: 5.3.2
       import-fresh: 3.3.1
-      js-yaml: 4.1.1
+      js-yaml: 5.2.1
       minimatch: 3.1.5
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
@@ -4146,7 +4173,7 @@ snapshots:
       '@supabase/phoenix': 0.4.0
       '@types/ws': 8.18.1
       tslib: 2.8.1
-      ws: 8.20.0
+      ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -4194,22 +4221,22 @@ snapshots:
       minimatch: 10.2.5
       path-browserify: 1.0.1
 
-  '@turbo/darwin-64@2.9.6':
+  '@turbo/darwin-64@2.10.4':
     optional: true
 
-  '@turbo/darwin-arm64@2.9.6':
+  '@turbo/darwin-arm64@2.10.4':
     optional: true
 
-  '@turbo/linux-64@2.9.6':
+  '@turbo/linux-64@2.10.4':
     optional: true
 
-  '@turbo/linux-arm64@2.9.6':
+  '@turbo/linux-arm64@2.10.4':
     optional: true
 
-  '@turbo/windows-64@2.9.6':
+  '@turbo/windows-64@2.10.4':
     optional: true
 
-  '@turbo/windows-arm64@2.9.6':
+  '@turbo/windows-arm64@2.10.4':
     optional: true
 
   '@tweenjs/tween.js@25.0.0': {}
@@ -4528,6 +4555,19 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
+  '@upstash/core-analytics@0.0.10':
+    dependencies:
+      '@upstash/redis': 1.38.0
+
+  '@upstash/ratelimit@2.0.8(@upstash/redis@1.38.0)':
+    dependencies:
+      '@upstash/core-analytics': 0.0.10
+      '@upstash/redis': 1.38.0
+
+  '@upstash/redis@1.38.0':
+    dependencies:
+      uncrypto: 0.1.3
+
   accepts@2.0.0:
     dependencies:
       mime-types: 3.0.2
@@ -4837,7 +4877,7 @@ snapshots:
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
-      js-yaml: 4.1.1
+      js-yaml: 5.2.1
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 5.9.3
@@ -5095,7 +5135,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dompurify@3.2.7:
+  dompurify@3.4.12:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -5438,7 +5478,7 @@ snapshots:
       imurmurhash: 0.1.4
       is-glob: 4.0.3
       is-path-inside: 3.0.3
-      js-yaml: 4.1.1
+      js-yaml: 5.2.1
       json-stable-stringify-without-jsonify: 1.0.1
       levn: 0.4.1
       lodash.merge: 4.6.2
@@ -6047,7 +6087,7 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
-  js-yaml@4.1.1:
+  js-yaml@5.2.1:
     dependencies:
       argparse: 2.0.1
 
@@ -6183,7 +6223,7 @@ snapshots:
 
   monaco-editor@0.55.1:
     dependencies:
-      dompurify: 3.2.7
+      dompurify: 3.4.12
       marked: 14.0.0
 
   ms@2.1.3: {}
@@ -7072,14 +7112,14 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  turbo@2.9.6:
+  turbo@2.10.4:
     optionalDependencies:
-      '@turbo/darwin-64': 2.9.6
-      '@turbo/darwin-arm64': 2.9.6
-      '@turbo/linux-64': 2.9.6
-      '@turbo/linux-arm64': 2.9.6
-      '@turbo/windows-64': 2.9.6
-      '@turbo/windows-arm64': 2.9.6
+      '@turbo/darwin-64': 2.10.4
+      '@turbo/darwin-arm64': 2.10.4
+      '@turbo/linux-64': 2.10.4
+      '@turbo/linux-arm64': 2.10.4
+      '@turbo/windows-64': 2.10.4
+      '@turbo/windows-arm64': 2.10.4
 
   tw-animate-css@1.4.0: {}
 
@@ -7140,6 +7180,8 @@ snapshots:
       has-bigints: 1.1.0
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
+
+  uncrypto@0.1.3: {}
 
   undici-types@6.21.0: {}
 
@@ -7262,7 +7304,7 @@ snapshots:
 
   wrappy@1.0.2: {}
 
-  ws@8.20.0: {}
+  ws@8.21.0: {}
 
   wsl-utils@0.3.1:
     dependencies:

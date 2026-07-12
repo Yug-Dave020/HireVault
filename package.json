@@ -8,7 +8,10 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
-    "clean": "turbo clean && find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +"
+    "clean": "turbo clean && find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
+    "test:vercel": "turbo build",
+    "test:render": "cd apps/worker && pytest tests/",
+    "test:all": "pnpm run test:vercel && pnpm run test:render"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.47.10",
@@ -23,5 +26,17 @@
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
   },
-  "packageManager": "pnpm@9.15.4"
+  "packageManager": "pnpm@9.15.4",
+  "resolutions": {
+    "ws": ">=8.21.0",
+    "turbo": ">=2.9.14",
+    "js-yaml": ">=4.2.0",
+    "dompurify": ">=3.4.11"
+  },
+  "overrides": {
+    "ws": ">=8.21.0",
+    "turbo": ">=2.9.14",
+    "js-yaml": ">=4.2.0",
+    "dompurify": ">=3.4.11"
+  }
 }
