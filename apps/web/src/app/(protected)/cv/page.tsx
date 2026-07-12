@@ -83,7 +83,7 @@ export default function CVPage() {
 
           const { data: variantsData, error: variantsErr } = await supabase
             .from("user_cv_variants")
-            .select("id, label, target_role, is_public, username, updated_at, cached_ats_score, cached_critiques")
+            .select("*")
             .eq("user_id", user.id)
             .order("updated_at", { ascending: false });
 

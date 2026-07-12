@@ -1194,7 +1194,7 @@ export default function CVEditorPage() {
               Structural Theme Preferences
             </h3>
 
-            <div className="flex gap-4 overflow-x-auto pb-4 snap-x scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
               {/* Template 1: Classic Minimalist (Green) */}
               <button 
                 onClick={() => updateDesign("theme", "modern_minimalist")}
