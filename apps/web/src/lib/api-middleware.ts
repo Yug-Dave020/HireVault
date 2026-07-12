@@ -32,19 +32,28 @@ export async function withApiAuthAndValidation<T>(
     }
 
     // Rate Limiting (by user ID) - Using AI rate limiter for these specific endpoints
-    const { success, reset } = await aiRateLimiter.limit(user.id);
-    if (!success) {
-      const retryAfter = Math.ceil((reset - Date.now()) / 1000);
-      return NextResponse.json(
-        { error: "Too Many Requests" }, 
-        { 
-          status: 429,
-          headers: {
-            "Retry-After": retryAfter.toString(),
-            "X-RateLimit-Reset": reset.toString()
-          }
-        }
+    try {
+      const limitPromise = aiRateLimiter.limit(user.id);
+      const timeoutPromise = new Promise<{success: boolean, reset: number}>((resolve) => 
+        setTimeout(() => resolve({ success: true, reset: 0 }), 3000)
       );
+      
+      const { success, reset } = await Promise.race([limitPromise, timeoutPromise]);
+      if (!success) {
+        const retryAfter = Math.ceil((reset - Date.now()) / 1000);
+        return NextResponse.json(
+          { error: "Too Many Requests" }, 
+          { 
+            status: 429,
+            headers: {
+              "Retry-After": retryAfter.toString(),
+              "X-RateLimit-Reset": reset.toString()
+            }
+          }
+        );
+      }
+    } catch (err) {
+      console.warn("Rate limiter failed or timed out. Failing open.", err);
     }
 
     let parsedBody: any = null;
