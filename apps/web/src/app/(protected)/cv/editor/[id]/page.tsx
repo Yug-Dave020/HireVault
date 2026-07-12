@@ -517,8 +517,8 @@ export default function CVEditorPage() {
   }
 
   return (
-    <div className="flex-grow flex flex-col h-full bg-white overflow-hidden">
-      <header className="border-b border-zinc-200/60 px-6 py-4 flex items-center justify-between bg-white shrink-0">
+    <div className="flex-grow flex flex-col min-h-screen bg-white">
+      <header className="border-b border-zinc-200/60 px-4 md:px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0 bg-white shrink-0">
         <div className="flex items-center gap-4">
           <a href="/cv" className="text-zinc-400 hover:text-zinc-600 transition-colors">
             <ArrowLeft className="h-5 w-5" />
@@ -530,7 +530,7 @@ export default function CVEditorPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="outline"
             onClick={() => setIsShareOpen(true)}
@@ -695,8 +695,8 @@ export default function CVEditorPage() {
           </div>
         </div>
       )}
-      <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 bg-zinc-50/40 overflow-hidden min-h-0">
-        <aside className="lg:col-span-7 bg-white rounded-2xl border border-zinc-200/60 shadow-xs flex flex-col overflow-y-auto px-6 py-6 space-y-6 cv-editor-form">
+      <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 sm:p-6 bg-zinc-50/40">
+        <aside className="lg:col-span-7 bg-white rounded-2xl border border-zinc-200/60 shadow-xs flex flex-col px-4 sm:px-6 py-6 space-y-6 cv-editor-form">
           {error && (
             <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
               ⚠ {error}
@@ -1187,7 +1187,7 @@ export default function CVEditorPage() {
           </div>
         </aside>
 
-        <section className="lg:col-span-5 bg-white rounded-2xl border border-zinc-200/60 shadow-xs overflow-y-auto p-6 space-y-6 flex flex-col">
+        <section className="lg:col-span-5 bg-white rounded-2xl border border-zinc-200/60 shadow-xs p-6 space-y-6 flex flex-col">
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-md space-y-5">
             <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
               <Type className="h-4 w-4 text-[var(--hv-teal)]" />

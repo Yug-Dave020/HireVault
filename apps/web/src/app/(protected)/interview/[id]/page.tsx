@@ -93,7 +93,7 @@ export default function InterviewChatPage({ params }: { params: { id: string } }
   }, [messages]);
 
   const initWebSocket = (sessionData: any) => {
-    const defaultBaseUrl = window.location.hostname === "localhost" ? "ws://localhost:8000" : "wss://api.hirevault.com";
+    const defaultBaseUrl = window.location.hostname === "localhost" ? "ws://localhost:8000" : "wss://hirevault-worker.onrender.com";
     const baseUrl = process.env.NEXT_PUBLIC_WORKER_WS_URL || defaultBaseUrl;
     const wsUrl = `${baseUrl}/ws/interview/${id}`;
 
@@ -365,9 +365,9 @@ export default function InterviewChatPage({ params }: { params: { id: string } }
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* LEFT PANEL: CODE SANDBOX */}
-        <div className="w-1/2 border-r border-zinc-200 flex flex-col bg-zinc-900 overflow-hidden">
+        <div className="w-full h-[40%] md:h-auto md:w-1/2 border-b md:border-b-0 md:border-r border-zinc-200 flex flex-col bg-zinc-900 overflow-hidden shrink-0">
           <div className="h-12 bg-zinc-800 flex items-center justify-between px-4 flex-shrink-0">
             <div className="flex items-center gap-2 text-zinc-400 text-xs font-bold uppercase">
               <Code className="h-4 w-4" /> Code Sandbox
@@ -395,7 +395,7 @@ export default function InterviewChatPage({ params }: { params: { id: string } }
         </div>
 
         {/* RIGHT PANEL: CHAT & VOICE CONSOLE */}
-        <div className="w-1/2 flex flex-col bg-zinc-50 relative overflow-hidden">
+        <div className="w-full md:w-1/2 flex flex-col bg-zinc-50 relative overflow-hidden flex-1">
           <div className="flex-1 overflow-y-auto p-4 sm:p-8">
             <div className="w-full max-w-2xl mx-auto space-y-6 pb-20">
               {messages.map((msg, idx) => {

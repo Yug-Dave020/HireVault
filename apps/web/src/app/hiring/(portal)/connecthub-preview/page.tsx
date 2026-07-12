@@ -86,7 +86,7 @@ export default function HiringConnectHubPreview() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'conversations' },
         () => {
-          // Simplest is to refetch all. Real app might do optimistic updates
+          // Refetch to sync state on changes
           initData();
         }
       )
@@ -129,7 +129,7 @@ export default function HiringConnectHubPreview() {
       <div className="flex-1 flex overflow-hidden border border-zinc-200 rounded-2xl shadow-sm bg-white">
         
         {/* Sidebar: Conversation List */}
-        <div className="w-72 bg-zinc-50 border-r border-zinc-200 flex flex-col shrink-0">
+        <div className={`w-full md:w-72 bg-zinc-50 border-r border-zinc-200 flex-col shrink-0 ${selectedConvId ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-4 border-b border-zinc-200 bg-white">
             <h3 className="font-semibold text-sm text-zinc-800 flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-indigo-500" />
@@ -167,7 +167,15 @@ export default function HiringConnectHubPreview() {
         {selectedConv ? (
           <>
             {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col relative bg-white">
+            <div className={`flex-1 flex flex-col relative bg-white ${!selectedConvId ? 'hidden md:flex' : 'flex'}`}>
+              <div className="md:hidden p-3 border-b border-zinc-200 bg-zinc-50 flex items-center">
+                <button 
+                  className="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-zinc-200 text-sm font-bold text-zinc-700 flex items-center gap-2 hover:bg-zinc-50"
+                  onClick={() => setSelectedConvId(null)}
+                >
+                  ← Back to Chats
+                </button>
+              </div>
               <ChatInterface 
                 conversationId={selectedConv.id} 
                 currentUserId={currentUserId} 

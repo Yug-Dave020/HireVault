@@ -133,10 +133,10 @@ export default function ProfilePage() {
 
   return (
     <div className="flex-1 flex flex-col bg-[#f8f9fa] overflow-y-auto">
-      <main className="mx-auto max-w-3xl w-full px-6 py-10">
-        <div className="bg-white p-8 sm:p-10 rounded-[20px] border border-zinc-200/80 shadow-sm space-y-6">
+      <main className="mx-auto max-w-3xl w-full px-4 md:px-6 py-6 md:py-10">
+        <div className="bg-white p-6 sm:p-10 rounded-[20px] border border-zinc-200/80 shadow-sm space-y-6">
 
-        <div className="space-y-1 border-b border-zinc-100 pb-4 flex items-center justify-between">
+        <div className="space-y-3 sm:space-y-1 border-b border-zinc-100 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
           <div className="space-y-1">
             <h1 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
               <User className="h-5 w-5 text-indigo-600" />

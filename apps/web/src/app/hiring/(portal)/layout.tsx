@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { LogOut, Briefcase, Video, MessageSquare } from "lucide-react";
+import { HiringMobileNav } from "@/components/nav/hiring-mobile-nav";
 
 export default async function HiringLayout({
   children,
@@ -10,11 +11,8 @@ export default async function HiringLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // We are in /hiring. If it's exactly /hiring/login, we don't apply the shell layout to avoid nesting
-  // But Next.js Layouts wrap all children. So we just conditionally render the shell.
-  // Wait, Next.js App router allows checking pathname? No, not in Server Components easily.
-  // A better approach is to have /hiring/(auth)/login and /hiring/(portal)/layout.tsx,
-  // but to keep it simple, we'll just check if user is logged in. If not, we don't render the shell.
+  // Conditionally render the shell layout only for authenticated users.
+  // Unauthenticated users (e.g., on the login page) will just render children.
 
   if (!user) {
     return <>{children}</>;
@@ -68,11 +66,7 @@ export default async function HiringLayout({
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="h-16 bg-white border-b border-zinc-200 flex items-center px-6 md:hidden">
-          <Link href="/hiring/dashboard" className="flex items-center gap-2">
-            <img src="/logo-cropped.png" alt="HireVault" className="h-7 w-auto object-contain" />
-          </Link>
-        </header>
+        <HiringMobileNav />
         <main className="flex-1 overflow-auto p-6 md:p-8">
           {children}
         </main>

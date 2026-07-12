@@ -14,7 +14,7 @@ export default function AsyncScreenReview() {
   return (
     <div className="max-w-6xl mx-auto flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 shrink-0">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0 mb-6 shrink-0">
         <div className="flex items-center gap-4">
           <Link href="/hiring/async-screen">
             <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-900 rounded-full hover:bg-zinc-200">
@@ -22,9 +22,9 @@ export default function AsyncScreenReview() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight flex flex-wrap items-center gap-3">
               Candidate Review
-              <span className="text-sm font-medium bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full border border-indigo-100">
+              <span className="text-sm font-medium bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full border border-indigo-100 whitespace-nowrap">
                 Senior Frontend Engineer
               </span>
             </h1>
@@ -36,9 +36,9 @@ export default function AsyncScreenReview() {
         </Button>
       </div>
 
-      <div className="flex-1 flex gap-6 min-h-0">
+      <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-0 overflow-y-auto md:overflow-hidden">
         {/* Left Column: Video Player */}
-        <div className="flex-1 flex flex-col bg-black rounded-2xl overflow-hidden relative shadow-xl group border border-zinc-800">
+        <div className="w-full md:flex-1 flex flex-col bg-black rounded-2xl overflow-hidden relative shadow-xl group border border-zinc-800 min-h-[300px] md:min-h-0 shrink-0">
           <video 
             src={demoVideoUrl} 
             className="w-full h-full object-cover"
@@ -53,7 +53,7 @@ export default function AsyncScreenReview() {
         </div>
 
         {/* Right Column: AI Analysis */}
-        <div className="w-[400px] flex flex-col bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden shrink-0">
+        <div className="w-full md:w-[400px] flex flex-col bg-white rounded-2xl border border-zinc-200 shadow-sm md:overflow-hidden shrink-0">
           <div className="p-5 border-b border-zinc-200 bg-zinc-50 flex items-center justify-between">
             <h3 className="font-semibold text-zinc-900 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-indigo-500" />
@@ -64,7 +64,7 @@ export default function AsyncScreenReview() {
             </div>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-thin scrollbar-thumb-zinc-200">
+          <div className="flex-1 md:overflow-y-auto p-5 space-y-6 scrollbar-thin scrollbar-thumb-zinc-200">
             {/* Summary */}
             <div>
               <h4 className="text-sm font-bold text-zinc-900 uppercase tracking-wider mb-3">Executive Summary</h4>

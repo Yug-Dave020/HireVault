@@ -42,9 +42,14 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.include_router(talentlens.router, prefix="/api/talentlens")
 app.include_router(connecthub.router)
 
+allowed_origins = [
+    "http://localhost:3000",
+    "https://hire-vault-web.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
