@@ -21,17 +21,20 @@ export function LandingNav({ user }: { user: User | null }) {
           <Link href="/hiring/login" className="hover:text-zinc-900 transition-colors font-semibold text-[#1da074]">For Employers</Link>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {user ? (
             <Link href="/dashboard" className="px-5 py-2 text-sm font-semibold bg-[#1da074] hover:bg-[#15805c] text-white rounded-lg transition-colors">
               Go to Dashboard
             </Link>
           ) : (
             <>
+              <Link href="/hiring/login" className="px-3 sm:px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 rounded-lg transition-colors whitespace-nowrap">
+                Employers
+              </Link>
               <Link href="/login" className="hidden sm:inline-flex px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 rounded-lg transition-colors">
                 Log in
               </Link>
-              <Link href="/signup" className="px-5 py-2 text-sm font-semibold bg-[#1da074] hover:bg-[#15805c] text-white rounded-lg transition-colors">
+              <Link href="/signup" className="px-4 sm:px-5 py-2 text-sm font-semibold bg-[#1da074] hover:bg-[#15805c] text-white rounded-lg transition-colors whitespace-nowrap">
                 Sign up
               </Link>
             </>
