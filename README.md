@@ -26,8 +26,9 @@ HireVault empowers users to dynamically tailor their CVs for Applicant Tracking 
 | :--- | :--- |
 | **Frontend** | ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white) |
 | **Backend** | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white) ![Python](https://img.shields.io/badge/Python_3.11-3776AB?style=flat-square&logo=python&logoColor=white) ![WebSockets](https://img.shields.io/badge/WebSockets-000000?style=flat-square) |
-| **Database & Auth** | ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) |
+| **Database & Auth** | ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) ![Upstash Redis](https://img.shields.io/badge/Upstash_Redis-FF4438?style=flat-square&logo=redis&logoColor=white) |
 | **AI Core** | ![Groq](https://img.shields.io/badge/Groq-f55036?style=flat-square&logo=groq&logoColor=white) ![Whisper](https://img.shields.io/badge/Whisper_v3-000000?style=flat-square&logo=openai&logoColor=white) |
+| **Security** | Tiered API Rate Limiting (Upstash / In-Memory Fallback) & Strict Dependency Overrides |
 
 ## ◈ Architecture
 HireVault follows a **Distributed Monorepo** pattern, separating the client-facing UI from heavy AI workloads:
@@ -90,6 +91,7 @@ You must have these installed on your machine:
 1. Clone the repository.
 2. Duplicate `.env.example` into `.env` at the root of the project.
 3. Fill in your `GROQ_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
+4. (Optional) Provide `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` to enable distributed production rate limits. (Defaults to in-memory for local dev).
 
 ### 3. Start the Application
 - **Frontend**: In the root folder, run `pnpm install` and then `pnpm dev`.

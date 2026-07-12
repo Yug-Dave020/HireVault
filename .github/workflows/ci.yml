@@ -33,6 +33,9 @@ jobs:
       - name: Run Type Check
         run: pnpm run type-check
 
+      - name: Test Vercel Compatibility (Build)
+        run: pnpm run test:vercel
+
   test-worker:
     name: Worker Unit Tests
     runs-on: ubuntu-latest
