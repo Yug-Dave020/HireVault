@@ -69,6 +69,7 @@ class SuggestionRequestModel(BaseModel):
 
 class AISuggestionResponseModel(BaseModel):
     score: int
+    score_reasoning: Optional[str] = None
     critiques: List[str]
     optimized_suggestions: List[str]
     recommended_skills: List[str]
@@ -126,32 +127,50 @@ Analyze the provided inputs with a focus on:
 2. Skill Deficit Matching: Comparing their complete CV skill matrix against the provided Job Description to pinpoint missing industry keywords or technologies they should include.
 3. Clarity and Density: Eliminating buzzwords, fluff phrases, and passive language.
 
-You MUST return a JSON object with the exact following keys:
+SCORING RUBRIC — you MUST use these bands to determine "score". Do not default to a "safe middle" number; commit to the band that matches:
+- 90-100: Every bullet has a quantified result, uses the Action-Result framework, and covers 90%+ of JD-required skills/keywords.
+- 75-89: Most bullets are quantified and action-led; 1-2 notable gaps in JD keyword coverage or clarity.
+- 55-74: Roughly half the bullets lack metrics or lead with weak/passive verbs; several JD keywords missing.
+- 30-54: Most bullets are vague or unquantified; major JD skill gaps; noticeable buzzword density.
+- 0-29: Content is largely generic, has almost no metrics, or barely engages with the JD at all.
+
+You MUST return a JSON object with the exact following keys, IN THIS ORDER (reasoning fields must come before the score):
 {
-  "score": <integer from 1 to 100 representing current ATS match strength or readiness>,
-  "critiques": [<list of strings detailing specific issues, missing details, or stylistic flaws>],
+  "critiques": [<list of strings detailing specific issues, missing details, or stylistic flaws found in THIS SPECIFIC VERSION of the text — reference exact phrases from the input, not generic advice>],
+  "score_reasoning": "<2-3 sentences explaining exactly which rubric band this version falls into and why, referencing specific bullets/phrases from the input>",
+  "score": <integer from 1 to 100, must match the band justified in score_reasoning>,
   "optimized_suggestions": [<list of 2 to 3 high-impact rewritten alternatives for the text or section provided>],
-  "recommended_skills": [<list of missing professional/technical skills explicitly extracted from the Job Description that the candidate should add to their CV based on their field>]
+  "recommended_skills": [<list of missing professional/technical skills EXPLICITLY present in the provided Job Description text that the candidate should add — do not invent skills not found in the JD text>]
 }
+
+If the input text is identical or nearly identical to a previous version you may have seen in this conversation, do not default to the same score out of habit — re-derive the score independently from the rubric based on the current text only.
 """
 
 TAILOR_SYSTEM_PROMPT = """You are an advanced AI resume architect and corporate talent consultant. 
 Your task is to take a candidate's complete, existing CV profile data and dynamically tailor it to match a specific target Job Description (JD).
 
-You must optimize the document for maximum ATS parsing relevance while maintaining absolute truthfulness to the candidate's core career history. Do not invent entirely new jobs or degrees.
+You must optimize the document for maximum ATS parsing relevance while maintaining absolute truthfulness to the candidate's core career history.
+
+HARD CONSTRAINTS:
+1. Do not invent entirely new jobs, degrees, employers, titles, or dates.
+2. Do not invent a metric/number that is not present in or directly inferable from the source data. If a bullet lacks a metric and none can be reasonably inferred, rewrite it for clarity and impact WITHOUT fabricating a number — use qualitative impact language instead (e.g. "reduced," "streamlined," "eliminated manual steps") rather than a fake percentage.
+3. Every rewritten bullet must remain verifiable against the original source bullet — no new responsibilities or tools not mentioned in the source.
 
 Execute these precise adaptations:
 1. Personal Summary: Rewrite to highlight exactly how the candidate's past experience addresses the main pain points outlined in the JD.
 2. Work Experience & Projects: Re-phrase bullet descriptions using the Action-Result framework, elevating matching methodologies, engineering tasks, and tools specified in the JD to the beginning of sentences.
-3. Skills Categorization: Re-order and enrich technical tags to prioritize structural keywords present in the JD.
 
-You MUST return a valid JSON object matching the exact original CV profile schema structure:
+Return ONLY a valid JSON object with this exact structure:
 {
-  "personal": { "full_name": "...", "email": "...", "summary": "..." },
-  "experience": [ { "company": "...", "role": "...", "bullets": ["...", "..."] } ],
-  "education": [ ... ],
-  "projects": [ ... ],
-  "skills": { "technical": [ ... ], "soft": [ ... ], "languages": [ ... ] }
+  "summary": "<rewritten personal summary>",
+  "experience": [
+    {
+      "role": "<unchanged>",
+      "company": "<unchanged>",
+      "bullets": ["<rewritten bullet 1>", "..."]
+    }
+  ],
+  "changes_made": [<short list of what was changed and why, for user transparency>]
 }
 """
 
@@ -380,7 +399,7 @@ async def cv_global_tailor(request: Request, req: TailorRequestModel, user_id: s
                         {"role": "user", "content": f"Tailor this profile structure globally to perfectly match the target requirements:\n\n{json.dumps(user_payload, indent=2)}"}
                     ],
                     model=model,
-                    temperature=0.3,
+                    temperature=0.2,
                     response_format={"type": "json_object"}
                 )
             else:
@@ -394,14 +413,34 @@ async def cv_global_tailor(request: Request, req: TailorRequestModel, user_id: s
         logger.error(f"Global tailoring loop pipeline failed: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Tailoring engine compilation error: {str(e)}")
 
-COHERENCE_SYSTEM_PROMPT = """You are a strict resume coherence auditor. Given a parsed resume JSON with sections: skills[], experience[{role, company, bullets[]}], projects[{name, bullets[]}], education[], perform the following checks and return ONLY valid JSON:
+COHERENCE_SYSTEM_PROMPT = """You are a strict resume coherence auditor. Given a parsed resume JSON with sections: skills[], experience[{role, company, bullets[]}], projects[{name, bullets[]}], education[], perform the following checks:
 1. skill_orphans: skills listed but not evidenced anywhere in experience or project bullets (semantic match, not just exact string — 'ML' should match 'machine learning')
 2. experience_underclaimed: technologies/tools mentioned in bullets but absent from the skills section
 3. impact_gap: bullet points with no quantifiable metric (no numbers, percentages, or scale indicators)
 4. timeline_flags: roles with suspicious overlapping dates or unexplained gaps > 6 months
 5. seniority_mismatch: language used in bullets doesn't match the claimed seniority level of the role
 6. keyword_density: skills section has >15 items with no grouping — flag as ATS noise risk
-Return: { "score": 0, "skill_orphans": [{"skill": "", "suggestion": ""}], "experience_underclaimed": [{"term": "", "found_in": ""}], "impact_gap": [{"bullet": "", "rewrite_suggestion": ""}], "timeline_flags": [{"role": "", "issue": ""}], "seniority_mismatch": [{"role": "", "issue": ""}], "keyword_density_flag": false }"""
+
+SCORING: Start at 100 and deduct points using this exact rubric, then report the final total as "score":
+- Each skill_orphan: -5 points
+- Each experience_underclaimed item: -4 points
+- Each impact_gap bullet: -3 points (cap total deduction from this category at -30)
+- Each timeline_flag: -8 points
+- Each seniority_mismatch: -6 points
+- keyword_density_flag true: -5 points
+Floor the score at 0. Show your deduction math in "score_calculation" before stating the final score.
+
+Return ONLY valid JSON in this exact order:
+{
+  "skill_orphans": [{"skill": "", "suggestion": ""}],
+  "experience_underclaimed": [{"term": "", "found_in": ""}],
+  "impact_gap": [{"bullet": "", "rewrite_suggestion": ""}],
+  "timeline_flags": [{"role": "", "issue": ""}],
+  "seniority_mismatch": [{"role": "", "issue": ""}],
+  "keyword_density_flag": false,
+  "score_calculation": "<e.g. '100 - 2 orphans(10) - 1 gap(3) = 87'>",
+  "score": 0
+}"""
 
 @app.post("/analyze/coherence")
 @limiter.limit("5/minute")
@@ -451,9 +490,15 @@ async def analyze_coherence(request: Request, req: CoherenceRequestModel, user_i
         logger.error(f"Coherence analysis failed: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-REDTEAM_AGENT_A_PROMPT = """You are a hostile ATS system and a skeptical senior recruiter. Read this resume JSON and return a JSON array of attacks: [{"target_section": "...", "target_text": "...", "attack_type": "vague"|"unverifiable"|"keyword_stuffed"|"buzzword"|"gap", "severity": 1|2|3, "attack_reasoning": "..."}]. Be ruthless. Find at least 8 attacks."""
+REDTEAM_AGENT_A_PROMPT = """You are a hostile ATS system and a skeptical senior recruiter. Read this resume JSON and return a JSON array of attacks: [{"target_section": "...", "target_text": "...", "attack_type": "vague"|"unverifiable"|"keyword_stuffed"|"buzzword"|"gap", "severity": 1|2|3, "attack_reasoning": "..."}].
 
-REDTEAM_AGENT_B_PROMPT = """You are an expert resume writer. Given an attack object and the original text, return: {"original": "...", "patched_version": "...", "reasoning": "..."}. The patch must be concrete, metric-driven, and ATS-friendly."""
+Identify every genuine weakness you can find — do not force a minimum count. If the resume is strong, return fewer attacks; do not fabricate weaknesses that aren't there just to hit a quota. Prioritize severity 3 (critical) issues first, then 2, then 1. Be ruthless about real weaknesses, but never invent one that isn't supported by the actual text.
+"""
+
+REDTEAM_AGENT_B_PROMPT = """You are an expert resume writer. Given an attack object and the original text, return: {"original": "...", "patched_version": "...", "reasoning": "..."}.
+
+The patch must be concrete, metric-driven, and ATS-friendly. Do NOT introduce any metric, number, tool, or claim that is not present in or directly inferable from the original text or the surrounding CV context provided to you. If no real metric is available, strengthen the language qualitatively instead of fabricating a number.
+"""
 
 @app.post("/analyze/redteam")
 @limiter.limit("5/minute")
@@ -592,11 +637,8 @@ async def vocal_analysis(request: Request, req: VocalAnalysisRequest, user_id: s
             
     return metrics
 
-NEGOTIATION_AGENT_PROMPT = """You are an HR recruiter roleplaying a salary negotiation.
-Your hidden maximum budget is ${hidden_budget}.
-The current offer is ${current_offer}.
-The user is negotiating. If they ask for more than your hidden budget, you must act reluctant and refuse firmly but professionally.
-If they ask for something within budget, you can concede slightly or accept.
+NEGOTIATION_AGENT_PROMPT = """You are an HR recruiter roleplaying a salary negotiation. Your hidden maximum budget is ${hidden_budget}. The current offer is ${current_offer}.
+The user is negotiating. If they ask for more than your hidden budget, you must act reluctant and refuse firmly but professionally. If they ask for something within budget, you can concede slightly or accept.
 Analyze their negotiation tactic and give a feedback_score (1-100).
 Return ONLY a JSON object: {"ai_response": "...", "new_offer": int, "feedback_score": int}"""
 

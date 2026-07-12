@@ -264,16 +264,19 @@ async def chat_cv(request: Request, req: ChatCVRequest):
     hm_id = verify_hiring_manager(request)
     supabase = get_supabase()
     
-    res = await asyncio.to_thread(lambda: supabase.table("cv_submissions").select("raw_text, job_postings!inner(hiring_manager_id)").eq("id", req.cv_submission_id).execute())
+    res = await asyncio.to_thread(lambda: supabase.table("cv_submissions").select("parsed_json, raw_text, job_postings!inner(hiring_manager_id)").eq("id", req.cv_submission_id).execute())
     if not res.data or res.data[0]["job_postings"]["hiring_manager_id"] != hm_id:
         raise HTTPException(status_code=403, detail="Forbidden")
         
-    raw_text = res.data[0]["raw_text"]
+    raw_text = res.data[0]["raw_text"] or ""
+    parsed_json = res.data[0].get("parsed_json")
+    
+    cv_context = json.dumps(parsed_json, indent=2) if parsed_json else (raw_text[:8000] if len(raw_text) > 8000 else raw_text)
     
     async def stream_generator():
         groq = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
         messages = [
-            {"role": "system", "content": f"You are a recruiting assistant. Answer questions about the following CV only. Be concise.\nCV:\n{raw_text[:5000]}"}
+            {"role": "system", "content": f"You are a recruiting assistant. Answer questions about the following CV only. Be concise.\nIf the answer isn't present in the provided CV text, say so explicitly rather than guessing.\nCV:\n{cv_context}"}
         ]
         messages.extend(req.conversation_history)
         messages.append({"role": "user", "content": req.question})
@@ -319,7 +322,7 @@ Top Skills: {', '.join(parsed.get('skills', [])[:3])}
 Recent Company: {', '.join(parsed.get('companies', [])[:1])}
 Summary: {parsed.get('summary', '')}
 
-Write a subject and a body. Use [TOKEN] placeholders if you need the recruiter to fill in a specific detail (e.g. [CALENDAR_LINK]).
+Only reference candidate details explicitly provided above. Do not invent past employers, achievements, or skills not listed. Use [TOKEN] placeholders (e.g. [CALENDAR_LINK], [ROLE_TITLE]) for any detail the recruiter must fill in themselves.
 Return JSON format: {{"subject": "...", "body": "..."}}"""
 
     resp = await groq.chat.completions.create(

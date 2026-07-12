@@ -25,6 +25,9 @@ CRITICAL RULES:
 2. Ensure every date field is formatted clearly (e.g., "YYYY-MM", "YYYY", or "Present").
 3. Experience items should contain a detailed "bullets" array explaining achievements (3-5 items per job if present).
 4. Strictly follow the JSON schema structure specified below. Do not add or change any keys.
+5. If a field cannot be confidently extracted from the source text, set it to null. Never invent, guess, or infer a value that is not directly supported by the text.
+6. If the source text is in a language other than English, preserve the original language in extracted fields. Do not translate content.
+7. If the extracted text appears garbled, truncated, or corrupted (e.g. from OCR/PDF extraction failure), still return valid JSON with best-effort values, and set a top-level "parse_confidence": "low" field. Otherwise set "parse_confidence": "high".
 
 JSON SCHEMA:
 {
