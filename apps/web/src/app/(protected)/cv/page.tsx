@@ -94,7 +94,7 @@ export default function CVPage() {
               }
             }
           }
-
+        }
       } catch (err) {
         console.error("Failed executing automated real-time ATS analysis lookup:", err);
         if (isMounted) {
