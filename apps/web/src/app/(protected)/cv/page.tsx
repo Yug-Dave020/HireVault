@@ -51,46 +51,50 @@ export default function CVPage() {
             const fallbackRole = masterData.target_roles?.[0] || "Software Engineer";
             setMasterProfile(profile);
 
+            // Fetch variants FIRST before any slow AI operations
+            const { data: variantsData, error: variantsErr } = await supabase
+              .from("user_cv_variants")
+              .select("*")
+              .eq("user_id", user.id)
+              .order("updated_at", { ascending: false });
+
+            if (!variantsErr && variantsData) {
+              setVariantsList(variantsData);
+            }
+
             if (masterData.cached_ats_score !== null && masterData.cached_ats_score !== undefined) {
               setMasterScore(masterData.cached_ats_score);
             } else {
               setUploadProgress("Analyzing profile parameters via AI...");
-              const workerUrl = process.env.NEXT_PUBLIC_WORKER_URL || "http://127.0.0.1:8000";
 
-              const askWorker = await fetch(`${workerUrl}/cv/suggest`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  section_type: "global_gap_analysis",
-                  current_text: profile.personal?.summary || "Analyze baseline career history.",
-                  target_role: fallbackRole,
-                  full_cv_context: profile
-                })
-              });
+              try {
+                const askWorker = await fetch(`/api/cv/suggest`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    section_type: "global_gap_analysis",
+                    current_text: profile.personal?.summary || "Analyze baseline career history.",
+                    target_role: fallbackRole,
+                    full_cv_context: profile
+                  })
+                });
 
-              if (askWorker.ok && isMounted) {
-                const analysis = await askWorker.json();
-                setMasterScore(analysis.score);
+                if (askWorker.ok && isMounted) {
+                  const analysis = await askWorker.json();
+                  setMasterScore(analysis.score);
 
-                await supabase.from("user_profiles").update({
-                  cached_ats_score: analysis.score,
-                  cached_critiques: analysis.critiques || [],
-                  cv_hash: analysis.cv_hash_checksum
-                }).eq("id", user.id);
+                  await supabase.from("user_profiles").update({
+                    cached_ats_score: analysis.score,
+                    cached_critiques: analysis.critiques || [],
+                    cv_hash: analysis.cv_hash_checksum
+                  }).eq("id", user.id);
+                }
+              } catch (aiErr) {
+                console.warn("AI analysis fetch failed, falling back to default.", aiErr);
               }
             }
           }
 
-          const { data: variantsData, error: variantsErr } = await supabase
-            .from("user_cv_variants")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("updated_at", { ascending: false });
-
-          if (!variantsErr && variantsData) {
-            setVariantsList(variantsData);
-          }
-        }
       } catch (err) {
         console.error("Failed executing automated real-time ATS analysis lookup:", err);
         if (isMounted) {
