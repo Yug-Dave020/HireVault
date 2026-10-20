@@ -53,7 +53,12 @@ export function NegotiateClient({ userId }: { userId: string }) {
     try {
       const supabase = createClient();
       const { data: { session: userSession } } = await supabase.auth.getSession();
-      const baseUrl = process.env.NEXT_PUBLIC_WORKER_WS_URL?.replace("ws://", "http://").replace("wss://", "https://") || "http://localhost:8000";
+      const defaultHttpUrl = typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? "http://localhost:8000"
+        : "https://hirevault-worker.onrender.com";
+      const baseUrl = process.env.NEXT_PUBLIC_WORKER_WS_URL
+        ? process.env.NEXT_PUBLIC_WORKER_WS_URL.replace("ws://", "http://").replace("wss://", "https://")
+        : defaultHttpUrl;
       
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (userSession) headers["Authorization"] = `Bearer ${userSession.access_token}`;
@@ -69,7 +74,10 @@ export function NegotiateClient({ userId }: { userId: string }) {
           history: newMessages.map(m => ({ role: m.role, content: m.content }))
         })
       });
-      if (!res.ok) throw new Error("API responded with an error");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.detail || `API error (${res.status})`);
+      }
       const data = await res.json();
       setCurrentOffer(data.new_offer ?? currentOffer);
       setMessages([...newMessages, {
@@ -78,8 +86,13 @@ export function NegotiateClient({ userId }: { userId: string }) {
         current_offer: data.new_offer,
         feedback_score: data.feedback_score
       }]);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("Negotiation error:", err);
+      setMessages([...newMessages, {
+        role: "ai",
+        content: `Error: ${err?.message || "Could not reach the negotiation server. Please try again."}`,
+        current_offer: currentOffer
+      }]);
     } finally {
       setLoading(false);
     }
