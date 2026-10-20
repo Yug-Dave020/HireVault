@@ -351,18 +351,45 @@ def render_cv_html(profile: dict, design_prefs: dict) -> str:
     )
     return html_out
 
+import asyncio
+import gc
+import ctypes
+
+_pdf_render_lock = asyncio.Lock()
+
+def _cleanup_memory():
+    """Forces Python GC and instructs glibc to release unused heap pages back to the OS."""
+    gc.collect()
+    try:
+        libc = ctypes.CDLL("libc.so.6")
+        libc.malloc_trim(0)
+    except Exception:
+        pass
+
+def _render_pdf_sync(html_string: str) -> bytes:
+    from weasyprint import HTML
+    try:
+        html = HTML(string=html_string)
+        pdf_bytes = html.write_pdf()
+        del html
+        return pdf_bytes
+    finally:
+        _cleanup_memory()
+
 async def export_pdf(cv_content: dict, design_prefs: dict = None) -> bytes:
     if design_prefs is None:
         design_prefs = cv_content.get("design_prefs", {})
         
-    logger.info(f"Exporting PDF using theme: {design_prefs.get('theme', 'modern_minimalist')}")
+    theme_name = design_prefs.get('theme', 'modern_minimalist')
+    logger.info(f"Exporting PDF using theme: {theme_name}")
     html_string = render_cv_html(cv_content, design_prefs)
     
-    # WeasyPrint is synchronous and can block the event loop indefinitely if it gets stuck fetching remote fonts/images.
-    # We must run it in a threadpool to prevent freezing the entire server.
+    # WeasyPrint is synchronous and can block the event loop or spike memory.
+    # We serialize PDF rendering with a lock to protect Render's 512MB RAM limit,
+    # run in a threadpool, and immediately release heap memory back to the OS.
     from starlette.concurrency import run_in_threadpool
-    from weasyprint import HTML
     
-    pdf_bytes = await run_in_threadpool(lambda: HTML(string=html_string).write_pdf())
-    logger.info("PDF bytes rendered successfully via WeasyPrint.")
-    return pdf_bytes
+    async with _pdf_render_lock:
+        pdf_bytes = await run_in_threadpool(_render_pdf_sync, html_string)
+        logger.info("PDF bytes rendered successfully via WeasyPrint.")
+        return pdf_bytes

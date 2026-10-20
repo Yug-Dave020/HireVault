@@ -42,14 +42,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.include_router(talentlens.router, prefix="/api/talentlens")
 app.include_router(connecthub.router)
 
-allowed_origins = [
-    "http://localhost:3000",
-    "https://hire-vault-web.vercel.app",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -118,6 +113,33 @@ groq_client = Groq(api_key=groq_api_key) if groq_api_key else None
 supabase_url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
 supabase: Optional[Client] = create_client(supabase_url, supabase_key) if supabase_url and supabase_key else None
+
+def safe_supabase_execute(query_fn, max_retries: int = 2):
+    """Executes a Supabase query with automatic retry and client refreshing if TLS/EOF/network connection fails."""
+    global supabase
+    last_err = None
+    for attempt in range(max_retries):
+        try:
+            if not supabase and supabase_url and supabase_key:
+                supabase = create_client(supabase_url, supabase_key)
+            if not supabase:
+                return None
+            return query_fn(supabase)
+        except Exception as e:
+            last_err = e
+            err_str = str(e).lower()
+            if "eof" in err_str or "protocol" in err_str or "closed" in err_str or "connection" in err_str or "ssl" in err_str or "write" in err_str:
+                logger.warning(f"Supabase connection error (attempt {attempt + 1}/{max_retries}): {e}. Reinitializing connection...")
+                try:
+                    if supabase_url and supabase_key:
+                        supabase = create_client(supabase_url, supabase_key)
+                except Exception:
+                    pass
+            else:
+                raise
+    if last_err is not None:
+        raise last_err
+    raise RuntimeError("Supabase query failed after retries")
 
 SUGGESTION_SYSTEM_PROMPT = """You are an elite corporate technical recruiter and expert ATS (Applicant Tracking System) optimization assistant.
 Your goal is to cross-examine a candidate's CV information against their target professional role and target job description to maximize their interview conversion rate.
@@ -782,23 +804,33 @@ async def websocket_interview(websocket: WebSocket, session_id: str):
     session_data = None
     is_empty_history = True
     if supabase:
-        def fetch_session():
-            return supabase.table("interview_sessions").select("*").eq("id", session_id).execute()
-        res = await asyncio.to_thread(fetch_session)
-        if res.data:
-            session_data = res.data[0]
-            
-        def fetch_trans():
-            return supabase.table("interview_transcripts").select("*").eq("session_id", session_id).order("created_at").execute()
-        trans_res = await asyncio.to_thread(fetch_trans)
-        if trans_res.data:
-            is_empty_history = False
-            manager.session_history[session_id] = [
-                {"role": "user" if m["message_owner"] == "user" else "assistant", "content": m["content"], "stage": m["stage"]}
-                for m in trans_res.data
-            ]
+        try:
+            res = await asyncio.to_thread(
+                lambda: safe_supabase_execute(lambda sb: sb.table("interview_sessions").select("*").eq("id", session_id).execute())
+            )
+            if res and res.data:
+                session_data = res.data[0]
+                
+            trans_res = await asyncio.to_thread(
+                lambda: safe_supabase_execute(lambda sb: sb.table("interview_transcripts").select("*").eq("session_id", session_id).order("created_at").execute())
+            )
+            if trans_res and trans_res.data:
+                is_empty_history = False
+                manager.session_history[session_id] = [
+                    {"role": "user" if m["message_owner"] == "user" else "assistant", "content": m["content"], "stage": m["stage"]}
+                    for m in trans_res.data
+                ]
+        except Exception as e:
+            logger.error(f"Error initializing session {session_id} from Supabase: {e}", exc_info=True)
+            try:
+                await websocket.send_json({"type": "error", "message": f"Database session error: {str(e)}"})
+            except Exception:
+                pass
+            await websocket.close(code=1011)
+            return
             
     if not session_data:
+        logger.warning(f"Interview session {session_id} not found. Closing WebSocket.")
         await websocket.close(code=1008)
         return
         
@@ -908,10 +940,10 @@ async def generate_and_stream_ai_response(session_id: str, websocket: WebSocket,
     cv_profile = {}
     if supabase and session_data.get("cv_variant_id"):
         try:
-            def fetch_cv():
-                return supabase.table("user_cv_variants").select("cv_profile").eq("id", session_data["cv_variant_id"]).execute()
-            cv_res = await asyncio.to_thread(fetch_cv)
-            if cv_res.data:
+            cv_res = await asyncio.to_thread(
+                lambda: safe_supabase_execute(lambda sb: sb.table("user_cv_variants").select("cv_profile").eq("id", session_data["cv_variant_id"]).execute())
+            )
+            if cv_res and cv_res.data:
                 cv_profile = cv_res.data[0].get("cv_profile", {})
         except Exception as e:
             logger.error(f"Error fetching CV variant: {e}")
@@ -936,15 +968,18 @@ async def generate_and_stream_ai_response(session_id: str, websocket: WebSocket,
                 next_stage = chunk.get("next_stage") or current_stage
                 ai_text = chunk.get("ai_message", "")
                 if ai_text and supabase:
-                    def insert_ai_msg():
-                        return supabase.table("interview_transcripts").insert({
-                            "session_id": session_id,
-                            "message_owner": "ai",
-                            "content": ai_text,
-                            "stage": next_stage,
-                            "feedback_metadata": chunk.get("feedback_metadata", {})
-                        }).execute()
-                    await asyncio.to_thread(insert_ai_msg)
+                    try:
+                        await asyncio.to_thread(
+                            lambda: safe_supabase_execute(lambda sb: sb.table("interview_transcripts").insert({
+                                "session_id": session_id,
+                                "message_owner": "ai",
+                                "content": ai_text,
+                                "stage": next_stage,
+                                "feedback_metadata": chunk.get("feedback_metadata", {})
+                            }).execute())
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed inserting AI transcript: {e}")
                     
                 manager.session_history[session_id].append({
                     "role": "assistant",
@@ -957,9 +992,12 @@ async def generate_and_stream_ai_response(session_id: str, websocket: WebSocket,
                         payload = {"current_stage": next_stage}
                         if next_stage == "Feedback":
                             payload["status"] = "completed"
-                        def update_stage():
-                            return supabase.table("interview_sessions").update(payload).eq("id", session_id).execute()
-                        await asyncio.to_thread(update_stage)
+                        try:
+                            await asyncio.to_thread(
+                                lambda: safe_supabase_execute(lambda sb: sb.table("interview_sessions").update(payload).eq("id", session_id).execute())
+                            )
+                        except Exception as e:
+                            logger.error(f"Failed updating interview stage: {e}")
                     session_data["current_stage"] = next_stage
                     
     except asyncio.CancelledError:

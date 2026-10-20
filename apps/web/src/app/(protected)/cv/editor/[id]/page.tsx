@@ -489,7 +489,14 @@ export default function CVEditorPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Worker failed to render PDF document.");
+        let errMsg = "Worker failed to render PDF document.";
+        try {
+          const errData = await response.json();
+          if (errData?.error) errMsg = errData.error;
+        } catch {
+          // ignore fallback
+        }
+        throw new Error(errMsg);
       }
 
       const blob = await response.blob();
