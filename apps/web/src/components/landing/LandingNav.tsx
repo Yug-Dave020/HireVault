@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { User } from "@supabase/supabase-js";
 
-export function LandingNav({ user }: { user: User | null }) {
+export function LandingNav({ user }: { user?: User | null }) {
   return (
     <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-zinc-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
