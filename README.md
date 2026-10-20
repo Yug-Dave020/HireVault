@@ -18,7 +18,7 @@ HireVault empowers users to dynamically tailor their CVs for Applicant Tracking 
 - **ConnectHub Employer Portal**: A dedicated portal for hiring managers to publish job postings, review applicant profiles, and message candidates directly.
 - **Async Video Screening**: Employers can request pre-recorded video screens. Candidate videos are automatically transcribed and analyzed by AI to extract key strengths and timestamps.
 - **Dynamic Dashboard & Analytics**: Monitor your Market Alignment score, track active application links, and easily identify suggested skill gaps missing from your target roles.
-- **Ultra-Fast LLM Orchestration**: Powered exclusively by Groq (`llama-3.3-70b-versatile`), offering near-instantaneous structural feedback and lifelike conversational latency.
+- **Ultra-Fast LLM Orchestration**: Powered exclusively by Groq (`openai/gpt-oss-120b`), offering near-instantaneous structural feedback and lifelike conversational latency.
 
 ## ⚙ Tech Stack
 

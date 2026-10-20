@@ -80,14 +80,13 @@ Schema:
 async def process_single_cv(filename: str, raw_text: str, job_posting_id: str, seq_idx: int, sem: asyncio.Semaphore):
     async with sem:
         groq = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
-        model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
         
         try:
             models_to_try = [
-                os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
-                "llama-3.1-8b-instant",
-                "mixtral-8x7b-32768",
-                "gemma2-9b-it"
+                os.getenv("GROQ_MODEL", "openai/gpt-oss-120b"),
+                "openai/gpt-oss-20b",
+                "qwen/qwen3.8-27b"
             ]
             resp = None
             for idx, m in enumerate(models_to_try):
@@ -283,7 +282,7 @@ async def chat_cv(request: Request, req: ChatCVRequest):
         
         stream = await groq.chat.completions.create(
             messages=messages,
-            model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+            model=os.getenv("GROQ_MODEL", "openai/gpt-oss-120b"),
             temperature=0.3,
             stream=True
         )
@@ -327,7 +326,7 @@ Return JSON format: {{"subject": "...", "body": "..."}}"""
 
     resp = await groq.chat.completions.create(
         messages=[{"role": "user", "content": prompt}],
-        model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        model=os.getenv("GROQ_MODEL", "openai/gpt-oss-120b"),
         temperature=0.4,
         response_format={"type": "json_object"}
     )

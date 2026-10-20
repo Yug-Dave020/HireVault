@@ -125,7 +125,7 @@ async def parse_resume_text(raw_text: str) -> dict:
         
     try:
         logger.info("Calling Groq API for resume text parsing.")
-        model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
         
         try:
             response = client.chat.completions.create(
@@ -139,8 +139,8 @@ async def parse_resume_text(raw_text: str) -> dict:
             )
         except Exception as e:
             if "rate_limit_exceeded" in str(e) or "429" in str(e):
-                logger.warning(f"Rate limit exceeded for model {model}. Falling back to llama-3.1-8b-instant...")
-                model = "llama-3.1-8b-instant"
+                logger.warning(f"Rate limit exceeded for model {model}. Falling back to openai/gpt-oss-20b...")
+                model = "openai/gpt-oss-20b"
                 response = client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},

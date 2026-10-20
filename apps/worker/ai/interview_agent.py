@@ -170,7 +170,7 @@ async def run_interview_turn(
         
     messages = get_prepared_messages(persona_id, current_stage, target_position, cv_profile, message_history)
     
-    model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
     
     try:
         response = await async_groq_client.chat.completions.create(
@@ -212,7 +212,7 @@ async def run_interview_stream(
         
     messages = get_prepared_messages(persona_id, current_stage, target_position, cv_profile, message_history, current_code)
     
-    model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
     
     try:
         stream = await async_groq_client.chat.completions.create(

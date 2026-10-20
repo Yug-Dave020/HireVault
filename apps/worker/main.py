@@ -271,7 +271,7 @@ async def cv_suggest(request: Request, req: SuggestionRequestModel, user_id: str
     current_hash = calculate_payload_hash(req.full_cv_context, role_to_analyze)
 
     try:
-        model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
         calculated_base_modifier = 0
         if req.job_description and req.full_cv_context:
@@ -308,8 +308,8 @@ async def cv_suggest(request: Request, req: SuggestionRequestModel, user_id: str
             )
         except Exception as e:
             if "rate_limit_exceeded" in str(e) or "429" in str(e):
-                logger.warning(f"Rate limit exceeded for model {model}. Falling back to llama-3.1-8b-instant...")
-                model = "llama-3.1-8b-instant"
+                logger.warning(f"Rate limit exceeded for model {model}. Falling back to openai/gpt-oss-20b...")
+                model = "openai/gpt-oss-20b"
                 response = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": SUGGESTION_SYSTEM_PROMPT},
@@ -328,6 +328,10 @@ async def cv_suggest(request: Request, req: SuggestionRequestModel, user_id: str
         parsed_json = json.loads(response_text)
         
         def normalize_list(lst):
+            if isinstance(lst, str):
+                return [lst]
+            if not isinstance(lst, list):
+                return []
             out = []
             for item in lst:
                 if isinstance(item, dict):
@@ -371,7 +375,7 @@ async def cv_global_tailor(request: Request, req: TailorRequestModel, user_id: s
         raise HTTPException(status_code=400, detail="A valid Job Description must be provided for tailoring.")
 
     try:
-        model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
         
         user_payload = {
             "current_cv_data": req.full_cv_context,
@@ -391,8 +395,8 @@ async def cv_global_tailor(request: Request, req: TailorRequestModel, user_id: s
             )
         except Exception as e:
             if "rate_limit_exceeded" in str(e) or "429" in str(e):
-                logger.warning(f"Rate limit exceeded for model {model}. Falling back to llama-3.1-8b-instant...")
-                model = "llama-3.1-8b-instant"
+                logger.warning(f"Rate limit exceeded for model {model}. Falling back to openai/gpt-oss-20b...")
+                model = "openai/gpt-oss-20b"
                 response = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": TAILOR_SYSTEM_PROMPT},
@@ -460,7 +464,7 @@ async def analyze_coherence(request: Request, req: CoherenceRequestModel, user_i
     user_id = res.data[0].get("user_id")
     
     try:
-        model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
         response = groq_client.chat.completions.create(
             messages=[
                 {"role": "system", "content": COHERENCE_SYSTEM_PROMPT},
@@ -513,7 +517,7 @@ async def analyze_redteam(request: Request, req: RedTeamRequestModel, user_id: s
         
     cv_data = res.data[0].get("cv_profile", {})
     user_id = res.data[0].get("user_id")
-    model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
     
     try:
         response_a = await asyncio.to_thread(
@@ -652,7 +656,7 @@ async def negotiate_turn(request: Request, req: NegotiationTurnRequest, user_id:
     history_text = "\n".join([f"{t.get('role', 'user')}: {t.get('content', '')}" for t in req.history])
     
     prompt = NEGOTIATION_AGENT_PROMPT.replace("${hidden_budget}", str(hidden_budget)).replace("${current_offer}", str(req.current_offer))
-    model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
     
     try:
         resp = await asyncio.to_thread(lambda: groq_client.chat.completions.create(
